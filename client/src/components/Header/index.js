@@ -9,6 +9,9 @@ import {
     NavLink
 } from 'reactstrap';
 
+/*
+This component renders the header on the top of the screen.
+*/
 class Header extends Component {
     constructor(props) {
         super(props);
