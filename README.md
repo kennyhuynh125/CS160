@@ -52,25 +52,25 @@ Open a terminal/command prompt and type in the following
 
   
 
-node -v
+    node -v
 
 This will test for Node and you should get something like this:
 
   
 
-v6.11.2
+    v6.11.2
 
 For NPM:
 
   
 
-npm -v
+    npm -v
 
 You should get something like this:
 
   
 
-3.10.10
+    3.10.10
 
 ### To test if Git is installed correctly
 
@@ -78,13 +78,13 @@ Open a terminal/command prompt and type in the following:
 
   
 
-git --version
+    git --version
 
 You should get something like this:
 
   
 
-git version 2.14.1.windows.1
+    git version 2.14.1.windows.1
 
 ### To test if Python is installed correctly
 
@@ -92,7 +92,7 @@ Open a terminal/command prompt and type in the following:
 
   
 
-python
+    python
 
 You should get something like this:
 
@@ -116,13 +116,13 @@ Open a terminal/command prompt and type in the following:
 
   
 
-pip --version
+    pip --version
 
 You should get something like this:
 
   
 
-pip 9.0.1 from c:\users\andy\appdata\local\programs\python\python35\lib\site-packages (python 3.5)
+    pip 9.0.1 from c:\users\andy\appdata\local\programs\python\python35\lib\site-packages (python 3.5)
 
   
 
@@ -134,16 +134,11 @@ Now all of our software are installed correctly!
 
 First, you will need a clone of the repo. Open a terminal/command prompt and type in the following
 
-  
-
-git clone https://github.com/kennyhuynh125/CS160.git
+    git clone https://github.com/kennyhuynh125/CS160.git
 
 This will download the repo into your current directory. Change directory to the repo.
 
-  
-
 Next, you will need to install all the dependencies for both the React side and Django side.
-
   
 
 ## To install dependencies on React side
@@ -158,8 +153,7 @@ This will download all the dependencies used. After it is done, to test if every
 
     npm start
 
-This will start up the React application. After it is done starting up, go to `localhost:3000` and you should see this landing page pictured below.
-![React Landing Page](https://drive.google.com/open?id=1AhO8r6ePp8w4eoqseGH1gtrLIuFZNegp)
+This will start up the React application. After it is done starting up, go to `localhost:3000` and you should see a landing page. (picture of landing page is on our Google Drive under the images folder)
 
 ## To install dependencies on Django side
 
@@ -175,8 +169,4 @@ This will download all the dependencies. After it is done, to test if everything
 
     python manage.py runserver
 
-This will start up the server. After it is done starting up, go to `localhost:8000` and you should the landing page pictured below.
-
-![Django Landing Page](https://drive.google.com/open?id=1zKiKeMi8pjuoTs_t-wVrrcs8p7Wr0S3d)
-
-Now you have both the client and server running together!
+This will start up the server. After it is done starting up, go to `localhost:8000` and you should the landing page. (picture of landing page is on our Google Drive under the images folder)
