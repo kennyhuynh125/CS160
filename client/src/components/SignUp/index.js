@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Container, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import { Container, Button, Form, FormGroup, Label, Input, CustomInput } from 'reactstrap';
 
 /*
 This component renders the form for users to sign up for an account.
@@ -11,7 +11,10 @@ class SignUp extends Component {
         this.state = {
             username: '',
             password: '',
+            isCustomer: '',
         }
+
+        this.handleCustomerChange = this.handleCustomerChange.bind(this);
         this.handleUsernameChange = this.handleUsernameChange.bind(this);
         this.handlePasswordChange = this.handlePasswordChange.bind(this);
         this.signUp = this.signUp.bind(this);
@@ -30,6 +33,12 @@ class SignUp extends Component {
             username: e.target.value,
         })
     }
+
+    handleCustomerChange = (e) => {
+        this.setState({
+            isCustomer: e.target.value === 'customer' ? true : false,
+        });
+    }
     
     // checks if username is in db already
     // if not, adds new user to db and redirects to log in page.
@@ -40,6 +49,7 @@ class SignUp extends Component {
         e.preventDefault();
     }
     render() {
+        console.log(this.state);
         return (
             <Container>
                 <h1>Sign Up</h1>
@@ -51,6 +61,12 @@ class SignUp extends Component {
                     <FormGroup>
                         <Label for="password">Password</Label>
                         <Input type="password" name="password" id="password" onChange={this.handlePasswordChange} required />
+                    </FormGroup>
+                    <FormGroup>
+                        <CustomInput type="radio" id="radio" name="customRadio" label="Customer" 
+                        value="customer" onChange={this.handleCustomerChange} inline  />
+                        <CustomInput type="radio" id="radio1" name="customRadio" label="Driver" 
+                        value="driver" onChange={this.handleCustomerChange} inline />
                     </FormGroup>
                     <Button>Sign Up</Button>
                 </Form>
