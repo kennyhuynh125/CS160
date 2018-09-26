@@ -1,13 +1,5 @@
 import React, { Component } from 'react';
-import {
-    Collapse,
-    Navbar,
-    NavbarToggler,
-    NavbarBrand,
-    Nav,
-    NavItem,
-    NavLink
-} from 'reactstrap';
+import { Container, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink} from 'reactstrap';
 
 /*
 This component renders the header on the top of the screen.
@@ -28,7 +20,7 @@ class Header extends Component {
     }
     render() {
         return (
-            <div>
+            <Container>
                 <Navbar expand="md">
                     <NavbarBrand href="/" className="mr-auto">LetItFly</NavbarBrand>
                     <NavbarToggler onClick={this.toggle} className="mr-2" />
@@ -37,10 +29,16 @@ class Header extends Component {
                             <NavItem>
                                 <NavLink href="/">Home</NavLink>
                             </NavItem>
+                            <NavItem>
+                                <NavLink href="/login">Log In</NavLink>
+                            </NavItem>
+                            <NavItem>
+                                <NavLink href="/signup">Sign Up</NavLink>
+                            </NavItem>
                         </Nav>
                     </Collapse>
                 </Navbar>
-            </div>
+            </Container>
         )
     }
 }

@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { Container } from 'reactstrap';
 import { Route } from 'react-router';
 
 import Home from '../Home';
+import LogIn from '../LogIn';
+import SignUp from '../SignUp';
 
 /*
 This component handles all the routes to the different urls.
@@ -11,9 +14,11 @@ For example if the user goes to localhost:3000/ it would render the Home compone
 class Main extends Component {
     render() {
         return (
-            <div>
+            <Container>
                 <Route exact path="/" component={Home} />
-            </div>
+                <Route exact path="/login" component={LogIn} />
+                <Route exact path="/signup" component={SignUp} />
+            </Container>
         )
     }
 }
