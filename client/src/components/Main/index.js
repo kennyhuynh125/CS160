@@ -5,6 +5,7 @@ import { Route } from 'react-router';
 import Home from '../Home';
 import LogIn from '../LogIn';
 import SignUp from '../SignUp';
+import PersonalInfo from '../PersonalInfo';
 
 /*
 This component handles all the routes to the different urls.
@@ -18,6 +19,7 @@ class Main extends Component {
                 <Route exact path="/" component={Home} />
                 <Route exact path="/login" component={LogIn} />
                 <Route exact path="/signup" component={SignUp} />
+                <Route exact path="/info" component={PersonalInfo} />
             </Container>
         )
     }
