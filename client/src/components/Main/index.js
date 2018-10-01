@@ -6,6 +6,7 @@ import Home from '../Home';
 import LogIn from '../LogIn';
 import SignUp from '../SignUp';
 import PersonalInfo from '../PersonalInfo';
+import Payment from '../Payment';
 
 /*
 This component handles all the routes to the different urls.
@@ -20,6 +21,7 @@ class Main extends Component {
                 <Route exact path="/login" component={LogIn} />
                 <Route exact path="/signup" component={SignUp} />
                 <Route exact path="/info" component={PersonalInfo} />
+                <Route exact path="/payment" component={Payment} />
             </Container>
         )
     }
