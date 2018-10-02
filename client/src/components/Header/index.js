@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
+import history from '../../history';
 import { Container, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink} from 'reactstrap';
 
 /*
@@ -11,6 +12,7 @@ class Header extends Component {
             isOpen: false
         };
         this.toggle = this.toggle.bind(this);
+        this.logOut = this.logOut.bind(this);
     }
 
     toggle = () => {
@@ -18,7 +20,15 @@ class Header extends Component {
             isOpen: !this.state.isOpen
         });
     }
+
+    logOut() {
+        alert('You have successfully logged out.');
+        sessionStorage.clear();
+        history.push('/');
+    }
+
     render() {
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         return (
             <Container>
                 <Navbar expand="md">
@@ -29,12 +39,29 @@ class Header extends Component {
                             <NavItem>
                                 <NavLink href="/">Home</NavLink>
                             </NavItem>
-                            <NavItem>
-                                <NavLink href="/login">Log In</NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink href="/signup">Sign Up</NavLink>
-                            </NavItem>
+                            {
+                                !isLoggedIn && (
+                                    <Fragment>
+                                        <NavItem>
+                                            <NavLink href="/login">Log In</NavLink>
+                                        </NavItem>
+                                        <NavItem>
+                                            <NavLink href="/signup">Sign Up</NavLink>
+                                        </NavItem>
+                                    </Fragment>
+                                )
+                            }
+                            {
+                                isLoggedIn && (
+                                    <Fragment>
+                                        <NavItem>
+                                            <NavLink href="#" onClick={this.logOut}>Log Out</NavLink>
+                                            <NavLink href="/payment">Payment Page</NavLink>
+                                            <NavLink href="/personal">Personal</NavLink>
+                                        </NavItem>
+                                    </Fragment>
+                                )
+                            }
                         </Nav>
                     </Collapse>
                 </Navbar>

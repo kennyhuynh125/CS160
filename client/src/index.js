@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import history from './history';
 import registerServiceWorker from './registerServiceWorker';
 
 /*
@@ -11,8 +12,8 @@ Entry point for React to render our application.
 It renders the App component, which renders our entire application.
 */
 ReactDOM.render(
-    <BrowserRouter>
+    <Router history={history}>
         <App />
-    </BrowserRouter>, 
+    </Router>, 
     document.getElementById('root'));
 registerServiceWorker();

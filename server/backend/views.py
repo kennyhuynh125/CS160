@@ -38,3 +38,16 @@ class AddUser(generics.CreateAPIView):
             return Response(True)
         else:
             return Response(False)
+
+class LogUser(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    def post(self, request):
+        data = self.get_queryset();
+        print(request.data);
+        username = request.data['username']
+        password = request.data['password']
+        for user in data:
+            if user.username.lower() == username.lower() and user.password == password:
+                return Response(True)
+        return Response(False)

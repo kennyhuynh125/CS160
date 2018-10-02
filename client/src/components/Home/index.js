@@ -27,9 +27,17 @@ class Home extends Component {
     render() {
         // print state to see if are retrieving users for testing purposes
         console.log(this.state);
+        const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         return (
             <div>
                 Hello World!
+                {
+                    isLoggedIn && (
+                        <p>You are logged in!</p>
+                    )
+                }
+                <p>Customer? {sessionStorage.getItem('customer')}</p>
+                <p>Driver? {sessionStorage.getItem('driver')}</p>
             </div>
         )
     }
