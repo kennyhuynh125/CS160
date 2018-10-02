@@ -1,15 +1,15 @@
 import React, {Component} from 'react';
-import { Container } from 'reactstrap';
+import { Container, ButtonGroup, Button } from 'reactstrap';
 import Editable from 'react-x-editable';
 //requires you to install react-x-editable: npm install react-x-editable
 
-export default class PersonalInfo extends Component {
+export default class Settings extends Component {
     constructor(props) {
         super(props);
         this.state = {
             firstName: 'First Name',
             lastName: 'Last Name',
-            email: 'e-mail',
+            email: 'E-mail',
             phone: 'Phone',
         }
         this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
@@ -51,7 +51,7 @@ export default class PersonalInfo extends Component {
     render() {
         return (
             <Container>
-                <h2>Personal Information</h2>
+                <h2>Account Settings</h2>
                 <h5>First Name:</h5>
                 <Editable
                     name="First Name"
@@ -95,6 +95,13 @@ export default class PersonalInfo extends Component {
                         }
                     }}
                 />
+                <h5>Allow Detours</h5>
+                <ButtonGroup>
+                    <Button color="success">On</Button>
+                    <Button color="link">Off</Button>
+                </ButtonGroup>
+                <h5><a href="#">Ride History</a></h5>
+                <h5><a href="#">Change Password</a></h5>
             </Container>
         );
     }

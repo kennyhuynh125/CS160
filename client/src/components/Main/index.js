@@ -5,7 +5,7 @@ import { Route } from 'react-router';
 import Home from '../Home';
 import LogIn from '../LogIn';
 import SignUp from '../SignUp';
-import PersonalInfo from '../PersonalInfo';
+import Settings from '../Settings';
 import Payment from '../Payment';
 
 /*
@@ -20,7 +20,7 @@ class Main extends Component {
                 <Route exact path="/" component={Home} />
                 <Route exact path="/login" component={LogIn} />
                 <Route exact path="/signup" component={SignUp} />
-                <Route exact path="/info" component={PersonalInfo} />
+                <Route exact path="/settings" component={Settings} />
                 <Route exact path="/payment" component={Payment} />
             </Container>
         )
