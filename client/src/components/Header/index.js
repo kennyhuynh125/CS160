@@ -55,9 +55,13 @@ class Header extends Component {
                                 isLoggedIn && (
                                     <Fragment>
                                         <NavItem>
+                                            <NavLink href="/payment">Payment Settings</NavLink>
+                                        </NavItem>
+                                        <NavItem>
+                                            <NavLink href="/settings">Account Info</NavLink>
+                                        </NavItem>
+                                        <NavItem>
                                             <NavLink href="#" onClick={this.logOut}>Log Out</NavLink>
-                                            <NavLink href="/payment">Payment Page</NavLink>
-                                            <NavLink href="/personal">Personal</NavLink>
                                         </NavItem>
                                     </Fragment>
                                 )
