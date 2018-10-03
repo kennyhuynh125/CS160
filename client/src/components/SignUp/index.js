@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import { Container, Button, Form, FormGroup, Label, Input, CustomInput } from 'reactstrap';
+import { Container, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import axios from 'axios';
 
 /*
 This component renders the form for users to sign up for an account.
@@ -11,10 +12,8 @@ class SignUp extends Component {
         this.state = {
             username: '',
             password: '',
-            isCustomer: '',
         }
 
-        this.handleCustomerChange = this.handleCustomerChange.bind(this);
         this.handleUsernameChange = this.handleUsernameChange.bind(this);
         this.handlePasswordChange = this.handlePasswordChange.bind(this);
         this.signUp = this.signUp.bind(this);
@@ -33,23 +32,30 @@ class SignUp extends Component {
             username: e.target.value,
         })
     }
-
-    handleCustomerChange = (e) => {
-        this.setState({
-            isCustomer: e.target.value === 'customer' ? true : false,
-        });
-    }
     
-    // checks if username is in db already
+    // checks if username is in db already and alert that it is taken
     // if not, adds new user to db and redirects to log in page.
     signUp = (e) => {
-        // print statement for testing purposes
-        console.log(this.state.username);
-        console.log(this.state.password);
+        axios.post(`/api/createuser`, {
+            username: this.state.username,
+            password: this.state.password,
+        })
+        .then((response) => {
+            // our api will return True if it can successfully sign someone up
+            // alert user and send them to login page
+            if (response.data === true) {
+                alert('Thank you for signing up. You may now log in.');
+                this.props.history.push('/login');
+            } else {
+                alert('Username is taken. Please try another one.');
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        })
         e.preventDefault();
     }
     render() {
-        console.log(this.state);
         return (
             <Container>
                 <h1>Sign Up</h1>
@@ -61,12 +67,6 @@ class SignUp extends Component {
                     <FormGroup>
                         <Label for="password">Password</Label>
                         <Input type="password" name="password" id="password" onChange={this.handlePasswordChange} required />
-                    </FormGroup>
-                    <FormGroup>
-                        <CustomInput type="radio" id="radio" name="customRadio" label="Customer" 
-                        value="customer" onChange={this.handleCustomerChange} inline  />
-                        <CustomInput type="radio" id="radio1" name="customRadio" label="Driver" 
-                        value="driver" onChange={this.handleCustomerChange} inline />
                     </FormGroup>
                     <Button>Sign Up</Button>
                 </Form>
