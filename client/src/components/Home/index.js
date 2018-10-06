@@ -38,6 +38,7 @@ class Home extends Component {
                 }
                 <p>Customer? {sessionStorage.getItem('customer')}</p>
                 <p>Driver? {sessionStorage.getItem('driver')}</p>
+                <p>User Id? {sessionStorage.getItem('userId')}</p>
             </div>
         )
     }

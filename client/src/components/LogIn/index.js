@@ -49,12 +49,15 @@ class LogIn extends Component {
             password: this.state.password,
         })
         .then((response) => {
-            if (response.data === true) {
+            if (response.data) {
                 alert('Sucessfully logged in.');
                 sessionStorage.setItem('isLoggedIn', true);
                 sessionStorage.setItem('driver', !this.state.isCustomer);
                 sessionStorage.setItem('customer', this.state.isCustomer);
+                sessionStorage.setItem('userId', response.data);
                 history.push('/');
+            } else {
+                alert('Invalid username or password. Please try again.');
             }
         })
         .catch((error) => {
@@ -79,7 +82,7 @@ class LogIn extends Component {
                         <CustomInput type="radio" id="radio" name="customRadio" label="Customer" 
                         value="customer" onChange={this.handleCustomerChange} inline required />
                         <CustomInput type="radio" id="radio1" name="customRadio" label="Driver" 
-                        value="driver" onChange={this.handleCustomerChange} inline requred />
+                        value="driver" onChange={this.handleCustomerChange} inline required />
                     </FormGroup>
                     <Button>Log In</Button>
                 </Form>
