@@ -8,4 +8,5 @@ urlpatterns = [
     path('loguser', views.LogUser.as_view()),
     path('addcard', views.AddNewCard.as_view()),
     path('getcards/<int:userId>', views.ListCardsByUser.as_view()),
+    path('directions/<latitude>/<longitude>', views.Directions.as_view()),
 ]

@@ -7,6 +7,12 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from .models import User, Payment
 from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer
+from django.conf import settings
+
+import googlemaps
+
+GOOGLE_API_KEY = getattr(settings, 'API_KEY', None)
+gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
 
 # gets all the users in our database and sends it as a Response
 class ListUser(generics.ListAPIView):
@@ -71,7 +77,7 @@ class ListCardsByUser(generics.ListCreateAPIView):
             json_data.append(json_obj)
         return Response(json_data)
 
-class AddNewCard(generics.CreateAPIView):
+class AddNewCard(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     def post(self, request):
@@ -82,3 +88,11 @@ class AddNewCard(generics.CreateAPIView):
             return Response(True)
         else:
             return Response(False)
+
+class Directions(generics.RetrieveAPIView):
+    def get_queryset(self):
+        return None
+    serializer_class = UserSerializer
+    def get(self, request, latitude, longitude):
+        reverse_geocode_result = gmaps.reverse_geocode((float(latitude), float(longitude)))
+        return Response(reverse_geocode_result)

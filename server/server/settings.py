@@ -93,7 +93,7 @@ DATABASES = {
         'ENGINE': 'mysql.connector.django',
         'NAME': 'test160',
         'USER': 'root',
-        'PASSWORD': 'secretpassword',
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': 'localhost',
         'PORT': 3306,
         'OPTIONS': {
@@ -101,6 +101,8 @@ DATABASES = {
         }
     }
 }
+
+API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
 
 
 # Password validation
