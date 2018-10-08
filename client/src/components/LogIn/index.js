@@ -14,10 +14,6 @@ class LogIn extends Component {
             password: '',
             isCustomer: '',
         }
-        this.handleUsernameChange = this.handleUsernameChange.bind(this);
-        this.handlePasswordChange = this.handlePasswordChange.bind(this);
-        this.handleCustomerChange = this.handleCustomerChange.bind(this);
-        this.authenticate = this.authenticate.bind(this);
     }
 
     // changes the password state to what the user inpus
@@ -65,6 +61,7 @@ class LogIn extends Component {
         })
         e.preventDefault();
     }
+
     render() {
         return (
             <Container>

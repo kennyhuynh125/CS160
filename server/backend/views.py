@@ -89,7 +89,7 @@ class AddNewCard(generics.ListCreateAPIView):
         else:
             return Response(False)
 
-class Directions(generics.RetrieveAPIView):
+class Location(generics.RetrieveAPIView):
     def get_queryset(self):
         return None
     serializer_class = UserSerializer

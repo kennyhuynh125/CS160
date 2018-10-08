@@ -11,8 +11,6 @@ class Header extends Component {
         this.state = {
             isOpen: false
         };
-        this.toggle = this.toggle.bind(this);
-        this.logOut = this.logOut.bind(this);
     }
 
     toggle = () => {
@@ -21,7 +19,7 @@ class Header extends Component {
         });
     }
 
-    logOut() {
+    logOut = () => {
         alert('You have successfully logged out.');
         sessionStorage.clear();
         history.push('/');

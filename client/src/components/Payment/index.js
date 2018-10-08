@@ -19,9 +19,6 @@ export default class Payment extends Component {
             ccCVV: '',
             savedCards: [],
         }
-        this.toggleCard = this.toggleCard.bind(this);
-        this.toggleAddr = this.toggleAddr.bind(this);
-        this.addCard = this.addCard.bind(this);
     }
 
     componentDidMount() {
@@ -37,7 +34,7 @@ export default class Payment extends Component {
         })
     }
 
-    toggleCard() {
+    toggleCard = () => {
         this.setState({ collapseCard: !this.state.collapseCard });
     }
 
@@ -98,7 +95,7 @@ export default class Payment extends Component {
         this.setState({ccExpYear: parseInt(e.target.value, 10) });
     }
 
-    toggleAddr() {
+    toggleAddr = () => {
         this.setState({ collapseAddr: !this.state.collapseAddr });
     }
 
