@@ -5,8 +5,14 @@ from django.forms.models import model_to_dict
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import User
-from .serializer import UserSerializer, UserCreateSerializer
+from .models import User, Payment
+from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer
+from django.conf import settings
+
+import googlemaps
+
+GOOGLE_API_KEY = getattr(settings, 'API_KEY', None)
+gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
 
 # gets all the users in our database and sends it as a Response
 class ListUser(generics.ListAPIView):
@@ -49,5 +55,44 @@ class LogUser(generics.CreateAPIView):
         password = request.data['password']
         for user in data:
             if user.username.lower() == username.lower() and user.password == password:
-                return Response(True)
-        return Response(False)
+                return Response(user.id)
+        return Response(None)
+
+class ListCardsByUser(generics.ListCreateAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    renderer_classes = (JSONRenderer,)
+    def get(self, request, userId):
+        data = Payment.objects.filter(userId=userId)
+        json_data = []
+        for card in data:
+            json_obj = {}
+            json_obj['ccName'] = card.ccName
+            json_obj['ccType'] = card.ccType
+            json_obj['ccNumber'] = card.ccNumber
+            json_obj['ccExpirationMonth'] = card.ccExpirationMonth
+            json_obj['ccExpirationYear'] = card.ccExpirationYear
+            json_obj['ccCVV'] = card.ccCVV
+            json_obj['ccIsDefault'] = card.ccIsDefault
+            json_data.append(json_obj)
+        return Response(json_data)
+
+class AddNewCard(generics.ListCreateAPIView):
+    queryset = Payment.objects.all()
+    serializer_class = PaymentSerializer
+    def post(self, request):
+        data_serializer = PaymentSerializer(data=request.data)
+        # check if info is valid
+        if data_serializer.is_valid():
+            data_serializer.save()
+            return Response(True)
+        else:
+            return Response(False)
+
+class Location(generics.RetrieveAPIView):
+    def get_queryset(self):
+        return None
+    serializer_class = UserSerializer
+    def get(self, request, latitude, longitude):
+        reverse_geocode_result = gmaps.reverse_geocode((float(latitude), float(longitude)))
+        return Response(reverse_geocode_result)

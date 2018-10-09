@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
 import { Container, Collapse, Button, CardBody, Card, Form, FormGroup, Label, Input } from 'reactstrap';
+import axios from 'axios';
+
+import CardInformation from '../CardInformation';
 
 export default class Payment extends Component {
     constructor(props) {
@@ -7,25 +10,92 @@ export default class Payment extends Component {
         this.state = {
             collapseCard: false,
             collapseAddr: false,
-            savedCards: 'No card saved',
             savedAddresses: 'No addresses saved',
+            ccName: '',
+            ccCardType: '',
+            ccCardNum: '',
+            ccExpMonth: '',
+            ccExpYear: '',
+            ccCVV: '',
+            savedCards: [],
         }
-        this.toggleCard = this.toggleCard.bind(this);
-        this.toggleAddr = this.toggleAddr.bind(this);
     }
 
-    toggleCard() {
+    componentDidMount() {
+        const userId = sessionStorage.getItem('userId');
+        axios.get(`/api/getcards/${userId}`)
+        .then((response) => {
+            this.setState({
+                savedCards: response.data,
+            });
+        })
+        .catch((error) => {
+            console.log(error.message);
+        })
+    }
+
+    toggleCard = () => {
         this.setState({ collapseCard: !this.state.collapseCard });
     }
 
-    addCard = (e) => {}
-    handleNameChange = (e) => {}
-    handleCardTypeChange = (e) => {}
-    handleCardNumChange = (e) => {}
-    handleExpMonthChange = (e) => {}
-    handleExpYearChange = (e) => {}
+    // adds card to database and refreshes page to show new change
+    addCard = (e) => {
+        const userId = sessionStorage.getItem('userId');
+        axios.post('/api/addcard', {
+            userId: userId,
+            ccName: this.state.ccName,
+            ccType: this.state.ccCardType,
+            ccNumber: this.state.ccCardNum,
+            ccExpirationMonth: this.state.ccExpMonth,
+            ccExpirationYear: this.state.ccExpYear,
+            ccCVV: this.state.ccCVV,
+        })
+        .then((response) => {
+            console.log(response);
+            if(response.data === true) {
+                alert('Card successfully added');
+                window.location.reload();
+            } else {
+                alert('Field(s) may contain invalid input.');
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+        e.preventDefault();
+    }
 
-    toggleAddr() {
+    // changes ccName state to user input
+    handleNameChange = (e) => {
+        this.setState({ ccName: e.target.value });
+    }
+
+    // changes ccCardType state to user input
+    handleCardTypeChange = (e) => {
+        this.setState({ ccCardType: e.target.value });
+    }
+
+    // changes ccCardNum state to user input
+    handleCardNumChange = (e) => {
+        this.setState({ ccCardNum: e.target.value });
+    }
+
+    // changes ccCardCode state to user input and parses to integer
+    handleCardCodeChange = (e) => {
+        this.setState({ ccCVV: parseInt(e.target.value, 10) });
+    }
+
+    // changes ccExpMonth state to user input and parses to integer
+    handleExpMonthChange = (e) => {
+        this.setState({ ccExpMonth: parseInt(e.target.value, 10) });
+    }
+
+     // changes ccExpYear state to user input and parses to integer
+    handleExpYearChange = (e) => {
+        this.setState({ccExpYear: parseInt(e.target.value, 10) });
+    }
+
+    toggleAddr = () => {
         this.setState({ collapseAddr: !this.state.collapseAddr });
     }
 
@@ -39,6 +109,7 @@ export default class Payment extends Component {
 
     render() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        console.log(this.state);
         return (
             <Container>
                 {
@@ -46,32 +117,38 @@ export default class Payment extends Component {
                         <div>
                         <h2>Payment Information</h2>
                             <h5>Saved Cards</h5>
-                            {this.state.savedCards}
-                            <p><Button onClick={this.toggleCard} style={{ marginBottom: '1rem' }}>Add New Card</Button>
+                            <CardInformation cards={this.state.savedCards} />
+                            <Button onClick={this.toggleCard} style={{ marginBottom: '1rem' }}>Add New Card</Button>
                                 <Collapse isOpen={this.state.collapseCard}>
                                 <Card>
                                     <CardBody>
-                                    <Form>
+                                    <Form onSubmit={this.addCard}>
                                         <FormGroup onSubmit={this.addCard}>
                                             <Label for="Name">Name</Label>
                                             <Input type="text" name="name" id="name" onChange={this.handleNameChange} required />
                                         </FormGroup>
                                         <FormGroup>
                                             <Label for="ccnum">Credit Card Type</Label>
-                                            <p><Input type="select" name="cctype" id="cctype" onChange={this.handleCardTypeChange}>
+                                            <Input type="select" name="cctype" id="cctype" onChange={this.handleCardTypeChange} required>
+                                                <option value="">None</option>
                                                 <option value="visa">Visa</option>
                                                 <option value="mastercard">MasterCard</option>
                                                 <option value="amex">American Express</option>
                                                 <option value="discover">Discover</option>
-                                            </Input></p>
+                                            </Input>
                                         </FormGroup>
                                         <FormGroup>
-                                            <Label for="ccnum">Credit Card Number</Label>
-                                            <Input type="password" name="ccnum" id="ccnum" onChange={this.handleCardNumChange} required />
+                                            <Label for="ccnum">Credit Card Number (15 - 19 digits)</Label>
+                                            <Input pattern=".{15,19}" type="password" name="ccnum" id="ccnum" onChange={this.handleCardNumChange} required />
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="cccvv">Credit Card CVV</Label>
+                                            <Input type="number" name="cccvv" id="cccvv" onChange={this.handleCardCodeChange} required />
                                         </FormGroup>
                                         <FormGroup>
                                             <Label for="expdate">Expiration Date</Label>
-                                            <p><Input type="select" name="exmonth" id="expmonth" onChange={this.handleExpMonthChange}>
+                                            <Input type="select" name="exmonth" id="expmonth" onChange={this.handleExpMonthChange} required>
+                                                <option value="">None</option>
                                                 <option value="1">January</option>
                                                 <option value="2">February</option>
                                                 <option value="3">March</option>
@@ -85,7 +162,8 @@ export default class Payment extends Component {
                                                 <option value="11">November</option>
                                                 <option value="12">December</option>
                                             </Input>
-                                            <Input type="select" name="expyear" id="expyear" onChange={this.handleExpYearChange}>
+                                            <Input type="select" name="expyear" id="expyear" onChange={this.handleExpYearChange} required>
+                                                <option value="">None</option>
                                                 <option value="18">2018</option>
                                                 <option value="19">2019</option>
                                                 <option value="20">2020</option>
@@ -93,16 +171,16 @@ export default class Payment extends Component {
                                                 <option value="22">2022</option>
                                                 <option value="23">2023</option>
                                                 <option value="24">2024</option>
-                                            </Input></p>
+                                            </Input>
                                         </FormGroup>
                                         <Button>Submit</Button>
                                     </Form>
                                     </CardBody>
                                 </Card>
-                            </Collapse></p>
+                            </Collapse>
                             <h5>Billing Address</h5>
                             {this.state.savedAddresses}
-                            <p><Button onClick={this.toggleAddr} style={{ marginBottom: '1rem' }}>Add New Address</Button>
+                            <Button onClick={this.toggleAddr} style={{ marginBottom: '1rem' }}>Add New Address</Button>
                                 <Collapse isOpen={this.state.collapseAddr}>
                                 <Card>
                                     <CardBody>
@@ -134,7 +212,7 @@ export default class Payment extends Component {
                                     </Form>
                                     </CardBody>
                                 </Card>
-                            </Collapse></p>
+                            </Collapse>
                         </div>
                     )
                 }

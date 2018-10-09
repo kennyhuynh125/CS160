@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, Payment, Driver
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,27 @@ class UserCreateSerializer(serializers.ModelSerializer):
             'password',
         )
         model = User
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'userId',
+            'ccName',
+            'ccType',
+            'ccNumber',
+            'ccExpirationMonth',
+            'ccExpirationYear',
+            'ccCVV',
+            'ccIsDefault',
+        )
+        model = Payment
+
+class DriverSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'userId',
+            'status',
+            'currentLatitude',
+            'currentLongitude',
+        )
+        model = Driver

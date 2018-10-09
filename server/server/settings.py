@@ -90,10 +90,19 @@ WSGI_APPLICATION = 'server.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'mysql.connector.django',
+        'NAME': 'test160',
+        'USER': 'root',
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': 3306,
+        'OPTIONS': {
+            'autocommit': True,
+        }
     }
 }
+
+API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
 
 
 # Password validation

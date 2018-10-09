@@ -11,5 +11,6 @@ django = "*"
 googlemaps = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
+mysql-connector-python = "*"
 
 [dev-packages]

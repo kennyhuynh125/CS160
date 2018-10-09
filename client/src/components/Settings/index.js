@@ -12,10 +12,6 @@ export default class Settings extends Component {
             email: 'E-mail',
             phone: 'Phone',
         }
-        this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
-        this.handleLastNameChange = this.handleLastNameChange.bind(this);
-        this.handleEmailChange = this.handleEmailChange.bind(this);
-        this.handlePhoneChange = this.handlePhoneChange.bind(this);
     }
 
 
