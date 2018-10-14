@@ -7,6 +7,7 @@ import LogIn from '../LogIn';
 import SignUp from '../SignUp';
 import Settings from '../Settings';
 import Payment from '../Payment';
+import RouteMap from '../Route';
 
 /*
 This component handles all the routes to the different urls.
@@ -22,6 +23,7 @@ class Main extends Component {
                 <Route exact path="/signup" component={SignUp} />
                 <Route exact path="/settings" component={Settings} />
                 <Route exact path="/payment" component={Payment} />
+                <Route exact path="/route" component={RouteMap} />
             </Container>
         )
     }
