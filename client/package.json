@@ -9,11 +9,13 @@
     "history": "^4.7.2",
     "react": "^16.5.1",
     "react-dom": "^16.5.1",
+    "react-google-maps": "^9.4.5",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.5",
     "react-x-editable": "0.0.10-beta",
-    "reactstrap": "^6.4.0"
+    "reactstrap": "^6.4.0",
+    "recompose": "^0.30.0"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,13 +1,13 @@
 /* global google */
 import React from 'react';
-const { compose, withProps, lifecycle } = require("recompose");
-const {
+import { compose, withProps, lifecycle } from 'recompose';
+import {
   withScriptjs,
   withGoogleMap,
   GoogleMap,
   DirectionsRenderer,
   TrafficLayer,
-} = require("react-google-maps");
+} from 'react-google-maps';
 
 const MapWithADirectionsRenderer = compose(
   withProps({
