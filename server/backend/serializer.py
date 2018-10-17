@@ -22,6 +22,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
+            'id',
             'userId',
             'ccName',
             'ccType',
@@ -36,6 +37,7 @@ class PaymentSerializer(serializers.ModelSerializer):
 class DriverSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
+            'id',
             'userId',
             'status',
             'currentLatitude',

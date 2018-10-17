@@ -21,9 +21,9 @@ class Payment(models.Model):
     ccIsDefault = models.BooleanField(default=False)
 
 class Driver(models.Model):
-    userId = models.IntegerField()
+    userId = models.IntegerField(unique=True)
     status = models.IntegerField(default=-1)
-    currentLatitude = models.DecimalField(max_digits=11, decimal_places=8, default=0)
-    currentLongitude = models.DecimalField(max_digits=11, decimal_places=8, default=0)
-    # carInfo? <-- not needed probably
+    currentLatitude = models.FloatField(default=0)
+    currentLongitude = models.FloatField(default=0)
+    
     
