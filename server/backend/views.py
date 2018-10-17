@@ -5,8 +5,8 @@ from django.forms.models import model_to_dict
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import User, Payment
-from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer
+from .models import User, Payment, Driver
+from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer
 from django.conf import settings
 
 import googlemaps
@@ -50,7 +50,6 @@ class LogUser(generics.CreateAPIView):
     serializer_class = UserSerializer
     def post(self, request):
         data = self.get_queryset();
-        print(request.data);
         username = request.data['username']
         password = request.data['password']
         for user in data:
@@ -96,3 +95,45 @@ class Location(generics.RetrieveAPIView):
     def get(self, request, latitude, longitude):
         reverse_geocode_result = gmaps.reverse_geocode((float(latitude), float(longitude)))
         return Response(reverse_geocode_result)
+
+class AddDriver(generics.ListCreateAPIView):
+    queryset = Driver.objects.all()
+    serializer_class = DriverSerializer
+    def post(self, request):
+        data_serializer = DriverSerializer(data=request.data)
+        if data_serializer.is_valid():
+            data_serializer.save()
+            return Response(True)
+        else:
+            return Response(False)
+
+class UpdateDriverLocation(generics.ListCreateAPIView):
+    queryset = Driver.objects.all();
+    serializer_class = DriverSerializer
+    def post(self, request):
+        user_id = request.data['userId']
+        latitude = request.data['latitude']
+        longitude = request.data['longitude']
+        driver = Driver.objects.get(id=user_id)
+        driver.currentLatitude = latitude
+        driver.currentLongitude = longitude
+        try:
+            driver.save()
+            return Response(True)
+        except:
+            return Response(False)
+
+class UpdateDriverStatus(generics.ListCreateAPIView):
+    queryset = Driver.objects.all();
+    serializer_class = DriverSerializer
+    def post(self, request):
+        user_id = request.data['userId']
+        status = request.data['status']
+        driver = Driver.objects.get(id=user_id)
+        driver.status = status
+        try:
+            driver.save()
+            return Response(True)
+        except:
+            return Response(False)
+    

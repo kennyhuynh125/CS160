@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import { Container, Button, Form, FormGroup, Label, Input, CustomInput } from 'reactstrap';
 import axios from 'axios';
 import history from '../../history';
+import { addDriver } from '../../helper';
 /*
 This component renders the form for users to log in.
 Form contains field for username and password.
@@ -39,22 +40,35 @@ class LogIn extends Component {
     
     // authenticates and logs user if username/password is valid
     authenticate = (e) => {
-        // print statements for testing purposes
+        let userId;
+        let isDriver;
         axios.post(`/api/loguser`, {
             username: this.state.username,
             password: this.state.password,
         })
-        .then((response) => {
+        .then((response) => { // logs user
             if (response.data) {
                 alert('Sucessfully logged in.');
                 sessionStorage.setItem('isLoggedIn', true);
                 sessionStorage.setItem('driver', !this.state.isCustomer);
                 sessionStorage.setItem('customer', this.state.isCustomer);
                 sessionStorage.setItem('userId', response.data);
-                history.push('/');
+                userId = sessionStorage.getItem('userId');
+                isDriver = sessionStorage.getItem('driver');
+                const geolocation = navigator.geolocation;
+                if (geolocation) {
+                    geolocation.getCurrentPosition((position) => {
+                        const latitude = position.coords.latitude;
+                        const longitude = position.coords.longitude;
+                        return addDriver(userId, isDriver, 1, latitude, longitude);
+                    });
+                }
             } else {
                 alert('Invalid username or password. Please try again.');
             }
+        })
+        .then(() => { // push to home page
+            history.push('/');
         })
         .catch((error) => {
             console.log(error);

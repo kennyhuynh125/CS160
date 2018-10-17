@@ -3,6 +3,14 @@ import { Button } from 'reactstrap';
 import axios from 'axios';
 import StandaloneSearchBox from './searchbox'
 import MapWithADirectionsRenderer from './directionsrenderer'
+import { compose, withProps, lifecycle } from 'recompose';
+import {
+  withScriptjs,
+  withGoogleMap,
+  GoogleMap,
+  DirectionsRenderer,
+  TrafficLayer,
+} from 'react-google-maps';
 
 export default class Map extends React.PureComponent {
     constructor(props) {

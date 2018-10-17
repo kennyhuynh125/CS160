@@ -9,4 +9,7 @@ urlpatterns = [
     path('addcard', views.AddNewCard.as_view()),
     path('getcards/<int:userId>', views.ListCardsByUser.as_view()),
     path('location/<latitude>/<longitude>', views.Location.as_view()),
+    path('adddriver', views.AddDriver.as_view()),
+    path('updatelocation', views.UpdateDriverLocation.as_view()),
+    path('updatestatus', views.UpdateDriverStatus.as_view()),
 ]

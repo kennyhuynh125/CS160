@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import history from '../../history';
 import { Container, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink} from 'reactstrap';
+import { updateDriverStatus } from '../../helper';
 
 /*
 This component renders the header on the top of the screen.
@@ -19,7 +20,11 @@ class Header extends Component {
         });
     }
 
+    // log out user by setting driver status to 0 and clearing sessionStorage
     logOut = () => {
+        const userId = sessionStorage.getItem('userId');
+        const isDriver = sessionStorage.getItem('driver');
+        updateDriverStatus(userId, isDriver, 0);
         alert('You have successfully logged out.');
         sessionStorage.clear();
         history.push('/');
