@@ -1,13 +1,13 @@
 /* global google */
 import React from 'react';
-const { compose, withProps, lifecycle } = require("recompose");
-const {
+import { compose, withProps, lifecycle } from "recompose";
+import {
   withScriptjs,
   withGoogleMap,
   GoogleMap,
   DirectionsRenderer,
   TrafficLayer,
-} = require("react-google-maps");
+} from "react-google-maps";
 
 const MapWithADirectionsRenderer = compose(
     withProps({
@@ -18,9 +18,26 @@ const MapWithADirectionsRenderer = compose(
     }),
     withScriptjs, withGoogleMap,
     lifecycle({
-        componentDidMount() {
+        componentWillMount() {
+            this.setState({
+                onDirectionChange: () => {
+                    const DirectionsService = new google.maps.DirectionsService();
+                    DirectionsService.route({
+                        origin: new google.maps.LatLng(this.props.latitude, this.props.longitude),
+                        destination: new google.maps.LatLng(this.props.destLatitude, this.props.destLongitude),
+                        travelMode: google.maps.TravelMode.DRIVING,
+                    }, (result, status) => {
+                        if (status === google.maps.DirectionsStatus.OK) {
+                            this.setState({
+                                directions: result
+                        });
+                    } else {
+                        console.error(`error fetching directions ${result}`);
+                    }
+                    });
+                }
+            });
             const DirectionsService = new google.maps.DirectionsService();
-
             DirectionsService.route({
                 origin: new google.maps.LatLng(this.props.latitude, this.props.longitude),
                 destination: new google.maps.LatLng(this.props.destLatitude, this.props.destLongitude),
@@ -33,15 +50,16 @@ const MapWithADirectionsRenderer = compose(
             } else {
                 console.error(`error fetching directions ${result}`);
             }
-        });
-    }
-})
+            });
+        },
+    }),
 )(props =>
     <GoogleMap
         defaultZoom={7}
         defaultCenter={new google.maps.LatLng(37.3352, -121.8811)}
     >
     <TrafficLayer autoUpdate />
+    {props.onDirectionChange()}
     {props.directions && <DirectionsRenderer directions={props.directions} />}
     </GoogleMap>
 );

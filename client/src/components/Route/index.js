@@ -3,14 +3,6 @@ import { Button } from 'reactstrap';
 import axios from 'axios';
 import StandaloneSearchBox from './searchbox'
 import MapWithADirectionsRenderer from './directionsrenderer'
-import { compose, withProps, lifecycle } from 'recompose';
-import {
-  withScriptjs,
-  withGoogleMap,
-  GoogleMap,
-  DirectionsRenderer,
-  TrafficLayer,
-} from 'react-google-maps';
 
 export default class Map extends React.PureComponent {
     constructor(props) {
@@ -22,18 +14,6 @@ export default class Map extends React.PureComponent {
             destLatitude: 0,
             destLongitude: 0,
             destLocation: [],
-        }
-    }
-
-    async componentDidMount() {
-        try {
-            const res = await fetch('/api/');
-            const users = await res.json();
-            this.setState({
-                users: users,
-            });
-        } catch (e) {
-            console.log(e);
         }
     }
 
@@ -69,9 +49,10 @@ export default class Map extends React.PureComponent {
 
 
     render() {
+        console.log(this.state);
         return (
         <div>
-            <StandaloneSearchBox onPlacesChanged={this.updateDestination(37.7749, -122.4194)}/>
+            <StandaloneSearchBox onPlacesChanged={this.updateDestination}/>
             <Button onClick={this.getGeoLocation}>Find Route</Button>
                 {
                     this.state.latitude !== 0 && this.state.longitude !== 0 && 

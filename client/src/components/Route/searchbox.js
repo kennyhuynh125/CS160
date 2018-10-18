@@ -1,9 +1,9 @@
 import React from 'react';
-const { compose, withProps, lifecycle } = require("recompose");
-const {
+import { compose, withProps, lifecycle } from 'recompose';
+import {
   withScriptjs,
-} = require("react-google-maps");
-const { StandaloneSearchBox } = require("react-google-maps/lib/components/places/StandaloneSearchBox");
+} from "react-google-maps";
+import { StandaloneSearchBox } from "react-google-maps/lib/components/places/StandaloneSearchBox";
 
 const PlacesWithStandaloneSearchBox = compose(
     withProps({
@@ -17,27 +17,25 @@ const PlacesWithStandaloneSearchBox = compose(
 
             this.setState({
                 places: [],
-                lat: 0,
-                lng: 0,
                 onSearchBoxMounted: ref => {
                     refs.searchBox = ref;
                 },
                 onPlacesChanged: () => {
                     const places = refs.searchBox.getPlaces();
-                    const lat = this.props.location.lat();
-                    const lng = this.props.location.lng();
                     this.setState({
                         places,
-                        lat,
-                        lng,
+                    }, () => {
+                        const destination = this.state.places[0];
+                        const destLat = destination.geometry.location.lat() 
+                        const destLng = destination.geometry.location.lng()
+                        this.props.onPlacesChanged(destLat,destLng);
                     });
                 },
             })
         },
     }), 
     withScriptjs
-)
-(props =>
+)(props =>
     <div data-standalone-searchbox="">
         <StandaloneSearchBox
         ref={props.onSearchBoxMounted}
