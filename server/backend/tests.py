@@ -35,6 +35,7 @@ class DriverModelTest(TestCase):
         Driver.objects.create(userId=1)
         Driver.objects.create(userId=2, status=1)
         Driver.objects.create(userId=3, status=0, currentLatitude=37.317, currentLongitude=100)
+        Driver.objects.create(fixedDriverId=1, status=1, currentLatitude=50.50, currentLongitude=100.50)
 
     def testUserIsDriver(self):
         driver = Driver.objects.get(id=1)
@@ -77,6 +78,26 @@ class DriverModelTest(TestCase):
         driver.save()
         expected_status = driver.status
         self.assertEquals(expected_status, 0)
+    
+    def testUpdateFixedDriverStatus(self):
+        driver = Driver.objects.get(fixedDriverId=1)
+        driver.status = 0;
+        driver.save()
+        expected_status = driver.status
+        self.assertEquals(expected_status, 0)
 
+    def testUpdateFixedDriverLatitude(self):
+        driver = Driver.objects.get(fixedDriverId=1)
+        driver.latitude = 60.780
+        driver.save()
+        expected_latitude = driver.latitude
+        self.assertEquals(expected_latitude, 60.780)
+    
+    def testUpdateFixedDriverLongitude(self):
+        driver = Driver.objects.get(fixedDriverId=1)
+        driver.longitude = 100.456
+        driver.save()
+        expected_longitude = driver.longitude
+        self.assertEquals(expected_longitude, 100.456)
     
 
