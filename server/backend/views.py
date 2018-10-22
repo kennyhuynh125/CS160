@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from django.core import serializers
+from django.shortcuts import render
 from django.forms.models import model_to_dict
 
 from rest_framework import generics
@@ -45,6 +45,7 @@ class AddUser(generics.CreateAPIView):
         else:
             return Response(False)
 
+
 class LogUser(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -56,6 +57,7 @@ class LogUser(generics.CreateAPIView):
             if user.username.lower() == username.lower() and user.password == password:
                 return Response(user.id)
         return Response(None)
+
 
 class ListCardsByUser(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
@@ -76,6 +78,7 @@ class ListCardsByUser(generics.ListCreateAPIView):
             json_data.append(json_obj)
         return Response(json_data)
 
+
 class AddNewCard(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
@@ -88,6 +91,7 @@ class AddNewCard(generics.ListCreateAPIView):
         else:
             return Response(False)
 
+
 class Location(generics.RetrieveAPIView):
     def get_queryset(self):
         return None
@@ -96,16 +100,22 @@ class Location(generics.RetrieveAPIView):
         reverse_geocode_result = gmaps.reverse_geocode((float(latitude), float(longitude)))
         return Response(reverse_geocode_result)
 
+
 class AddDriver(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     def post(self, request):
+        driver = Driver.objects.get(id=int(request.data['userId']));
+        if driver:
+            return Response(False)
         data_serializer = DriverSerializer(data=request.data)
+
         if data_serializer.is_valid():
             data_serializer.save()
             return Response(True)
         else:
             return Response(False)
+
 
 class UpdateDriverLocation(generics.ListCreateAPIView):
     queryset = Driver.objects.all();
@@ -123,8 +133,9 @@ class UpdateDriverLocation(generics.ListCreateAPIView):
         except:
             return Response(False)
 
+
 class UpdateDriverStatus(generics.ListCreateAPIView):
-    queryset = Driver.objects.all();
+    queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     def post(self, request):
         user_id = request.data['userId']
@@ -136,4 +147,34 @@ class UpdateDriverStatus(generics.ListCreateAPIView):
             return Response(True)
         except:
             return Response(False)
-    
+
+class UpdateFixedDriverStatus(generics.ListCreateAPIView):
+    queryset = Driver.objects.all()
+    serializer_class = DriverSerializer
+    def post(self, request):
+        driver_id = request.data['fixedDriverId']
+        status = request.data['status']
+        driver = Driver.objects.get(fixedDriverId=driver_id)
+        driver.status = status
+        try:
+            driver.save()
+            return Response(True)
+        except:
+            return Response(False)
+
+
+class UpdateFixedDriverLocation(generics.ListCreateAPIView):
+    queryset = Driver.objects.all();
+    serializer_class = DriverSerializer
+    def post(self, request):
+        driver_id = request.data['fixedDriverId']
+        latitude = request.data['latitude']
+        longitude = request.data['longitude']
+        driver = Driver.objects.get(fixedDriverId=driver_id)
+        driver.currentLatitude = latitude
+        driver.currentLongitude = longitude
+        try:
+            driver.save()
+            return Response(True)
+        except:
+            return Response(False)   

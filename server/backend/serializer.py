@@ -39,6 +39,7 @@ class DriverSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'userId',
+            'fixedDriverId',
             'status',
             'currentLatitude',
             'currentLongitude',
