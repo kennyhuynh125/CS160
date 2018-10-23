@@ -8,11 +8,47 @@ from rest_framework.renderers import JSONRenderer
 from .models import User, Payment, Driver
 from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer
 from django.conf import settings
+from datetime import datetime
 
 import googlemaps
 
 GOOGLE_API_KEY = getattr(settings, 'API_KEY', None)
 gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
+
+class GetDriver(generics.ListCreateAPIView):
+    queryset = Driver.objects.all();
+    def post(self, request):
+        #Gets all drivers with "1" status in db
+        availableDrivers = Driver.objects.filter(status=1)
+
+        #Sets shortestTime to some really big amount to begin with
+        shortestTime = 9223372036854775807;
+        closestDriver = None;
+
+        for driver in availableDrivers:
+            time = getDuration(request.data['latitude'], request.data['longitude'], driver.currentLatitude, driver.currentLongitude)
+            if (time < shortestTime):
+                shortestTime = time;
+                closestDriver = driver;
+
+        json_data=[]
+        json_obj={}
+        json_obj['driverLatitude']=closestDriver.currentLatitude;
+        json_obj['driverLongitude']=closestDriver.currentLongitude;
+        json_data.append(json_obj)
+        return Response(json_data)
+
+def getDuration(latitude, longitude, destLatitude, destLongitude):
+    firstLocation = str(latitude) + ", " + str(longitude)
+    destLocation = str(destLatitude) + ", " + str(destLongitude)
+    now = datetime.now()
+    directions_result = gmaps.directions(firstLocation,
+                         destLocation,
+                         mode="driving",
+                         departure_time=now)
+    return directions_result[0]['legs'][0]['duration_in_traffic']['value']
+
+
 
 # gets all the users in our database and sends it as a Response
 class ListUser(generics.ListAPIView):

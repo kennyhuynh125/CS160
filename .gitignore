@@ -1,3 +1,4 @@
 Pipfile
+Pipfile.lock
 server/server/settings.py
 .vscode

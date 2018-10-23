@@ -12,4 +12,5 @@ urlpatterns = [
     path('adddriver', views.AddDriver.as_view()),
     path('updatelocation', views.UpdateDriverLocation.as_view()),
     path('updatestatus', views.UpdateDriverStatus.as_view()),
+    path('getdriver', views.GetDriver.as_view()),
 ]
