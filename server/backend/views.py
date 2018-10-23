@@ -35,6 +35,7 @@ class GetDriver(generics.ListCreateAPIView):
         json_obj={}
         json_obj['driverLatitude']=closestDriver.currentLatitude;
         json_obj['driverLongitude']=closestDriver.currentLongitude;
+        json_obj['duration']=shortestTime;
         json_data.append(json_obj)
         return Response(json_data)
 
