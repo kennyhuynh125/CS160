@@ -14,7 +14,34 @@ export default class Map extends React.PureComponent {
             destLatitude: 0,
             destLongitude: 0,
             destLocation: [],
+            loading: true,
         }
+    }
+
+    componentDidMount() {
+        this.getGeoLocation()
+        this.setState({
+            loading: false
+        })
+    }
+
+    getDriver = () => {
+        let timeout = 0;
+        if (this.state.latitude === 0) {
+            timeout = 3000;
+        }
+        setTimeout(function() {axios.post(`/api/getdriver`, {
+            latitude: this.state.latitude,
+            longitude: this.state.longitude,
+        })
+        .then((response) => {
+            console.log(response);
+            this.setState({
+                    destLatitude: response.data[0].driverLatitude,
+                    destLongitude: response.data[0].driverLongitude,
+            })
+        })}.bind(this),timeout)
+        console.log(timeout)
     }
 
     getGeoLocation = () => {
@@ -53,9 +80,9 @@ export default class Map extends React.PureComponent {
         return (
         <div>
             <StandaloneSearchBox onPlacesChanged={this.updateDestination}/>
-            <Button onClick={this.getGeoLocation}>Find Route</Button>
+            <Button onClick={this.getDriver}>Find Driver</Button>
                 {
-                    this.state.latitude !== 0 && this.state.longitude !== 0 && 
+                    this.state.loading !== true && this.state.latitude !== 0 && this.state.longitude !== 0 && 
                     this.state.destLongitude !== 0 && this.state.destLongitude !== 0 && (
                         <div>
                             <p>Latitude: {this.state.latitude}</p>
