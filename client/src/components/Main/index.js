@@ -8,7 +8,7 @@ import SignUp from '../SignUp';
 import Settings from '../Settings';
 import Payment from '../Payment';
 import RouteMap from '../Route';
-
+import Booking from '../Booking/booking';
 /*
 This component handles all the routes to the different urls.
 There is a route for each path and each route renders a component.
@@ -24,6 +24,7 @@ class Main extends Component {
                 <Route exact path="/settings" component={Settings} />
                 <Route exact path="/payment" component={Payment} />
                 <Route exact path="/route" component={RouteMap} />
+				<Route exact path="/booking" component={Booking} />
             </Container>
         )
     }
