@@ -32,12 +32,11 @@ class Booking extends Component {
     }
 	// handles changes in start location
     updateStart = (lat, lng) => {
-        this.setState({startLat: lat, startLong: lng})
 		this.setState({start:[lat,lng]})
     }
     // handles changes in end location
     updateDestination = (lat, lng) => {
-        this.setState({destLat: lat, destLong: lng})
+        this.setState({dest:[lat,lng]})
     }
     refreshMap = () =>
 	{
