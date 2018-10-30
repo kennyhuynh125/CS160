@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.core import serializers
 from django.shortcuts import render
 from django.forms.models import model_to_dict
@@ -177,4 +178,64 @@ class UpdateFixedDriverLocation(generics.ListCreateAPIView):
             driver.save()
             return Response(True)
         except:
-            return Response(False)   
+            return Response(False)
+
+
+class GetDriver(generics.ListCreateAPIView):
+    queryset = Driver.objects.all()
+    def post(self, request):
+        #Gets all drivers with "1" status in db
+        availableDrivers = Driver.objects.filter(status=1)
+         #Sets shortestTime to some really big amount to begin with
+        shortestTime = 9223372036854775807
+        closestDriver = None
+        for driver in availableDrivers:
+            time = getDuration(request.data['latitude'], request.data['longitude'], driver.currentLatitude, driver.currentLongitude)
+            if (time < shortestTime):
+                shortestTime = time
+                closestDriver = driver
+        json_data=[]
+        json_obj={}
+        json_obj['driverLatitude']=closestDriver.currentLatitude
+        json_obj['driverLongitude']=closestDriver.currentLongitude
+        json_obj['duration']= int(round(shortestTime / 60))
+        json_data.append(json_obj)
+        return Response(json_data)
+
+
+class GetDurationAndDistance(generics.ListCreateAPIView):
+    queryset = Driver.objects.all()
+    def post(self, request):
+        starting_latitude = request.data['startLat']
+        starting_longitude = request.data['startLong']
+        destination_latitude = request.data['destLat']
+        destination_longitude = request.data['destLong']
+        json_data = []
+        json_obj = {}
+        duration = getDuration(starting_latitude, starting_longitude, destination_latitude, destination_longitude)
+        distance = getDistance(starting_latitude, starting_longitude, destination_latitude, destination_longitude)
+        json_obj['duration'] = int(round(duration / 60)) # since it comes in seconds
+        json_obj['distance'] = round(distance / 1610, 1)
+        json_data.append(json_obj)
+        return Response(json_data)
+
+
+def getDuration(latitude, longitude, destLatitude, destLongitude):
+    firstLocation = str(latitude) + ", " + str(longitude)
+    destLocation = str(destLatitude) + ", " + str(destLongitude)
+    now = datetime.now()
+    directions_result = gmaps.directions(firstLocation,
+                         destLocation,
+                         mode="driving",
+                         departure_time=now)
+    return directions_result[0]['legs'][0]['duration_in_traffic']['value']
+
+def getDistance(latitude, longitude, destLatitude, destLongitude):
+    firstLocation = str(latitude) + ", " + str(longitude)
+    destLocation = str(destLatitude) + ", " + str(destLongitude)
+    now = datetime.now()
+    directions_result = gmaps.directions(firstLocation,
+                         destLocation,
+                         mode="driving",
+                         departure_time=now)
+    return directions_result[0]['legs'][0]['distance']['value']

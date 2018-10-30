@@ -23,7 +23,7 @@ export const addDriver = (userId, isDriver, status, latitude, longitude) => {
 };
 
 // makes api call to update driver status
-export const updateDriverStatus = (userId, isDriver, newStatus) => {
+export const updateDriverStatus = (userId, isDriver, newStatus, callback) => {
     if (isDriver === 'true' && userId !== null) {
         axios.post('/api/updatestatus', {
             userId: userId,
@@ -32,6 +32,9 @@ export const updateDriverStatus = (userId, isDriver, newStatus) => {
         .then((response) => {
             console.log(response);
             console.log('Status updated.');
+            if (callback) {
+                callback();
+            }
         })
         .catch((error) => {
             console.log(error);
@@ -40,7 +43,7 @@ export const updateDriverStatus = (userId, isDriver, newStatus) => {
 };
 
 // make api call to update driver's latitude and longitude
-export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude) => {
+export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude, callback) => {
     if (isDriver === 'true' && userId !== null) {
         axios.post('/api/updatelocation', {
             userId: userId,
@@ -50,6 +53,9 @@ export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude
         .then((response) => {
             console.log(response);
             console.log('Location updated');
+            if(callback) {
+                callback();
+            }
         })
         .catch((error) => {
             console.log(error);

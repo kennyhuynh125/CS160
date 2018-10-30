@@ -27,6 +27,7 @@ class Header extends Component {
         updateDriverStatus(userId, isDriver, 0);
         alert('You have successfully logged out.');
         sessionStorage.clear();
+        window.location.reload();
         history.push('/');
     }
 

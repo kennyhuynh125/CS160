@@ -17,6 +17,7 @@ const PlacesWithStandaloneSearchBox = compose(
 
             this.setState({
                 places: [],
+                isInvalidLocation: false,
                 onSearchBoxMounted: ref => {
                     refs.searchBox = ref;
                 },
@@ -26,9 +27,19 @@ const PlacesWithStandaloneSearchBox = compose(
                         places,
                     }, () => {
                         const destination = this.state.places[0];
-                        const destLat = destination.geometry.location.lat() 
-                        const destLng = destination.geometry.location.lng()
-                        this.props.onPlacesChanged(destLat,destLng);
+                        if (destination === undefined) {
+                            this.setState({
+                                isInvalidLocation: true,
+                            })
+                        } else {
+                            this.setState({
+                                isInvalidLocation: false,
+                            }, () => {
+                                const destLat = destination.geometry.location.lat() 
+                                const destLng = destination.geometry.location.lng()
+                                this.props.onPlacesChanged(destLat,destLng);
+                            });
+                        }
                     });
                 },
             })
@@ -40,7 +51,8 @@ const PlacesWithStandaloneSearchBox = compose(
         <StandaloneSearchBox
         ref={props.onSearchBoxMounted}
         bounds={props.bounds}
-        onPlacesChanged={props.onPlacesChanged}>
+        onPlacesChanged={props.onPlacesChanged}
+        >
         <input
             type="text"
             placeholder="Search"
@@ -58,11 +70,11 @@ const PlacesWithStandaloneSearchBox = compose(
             }}
         />
         </StandaloneSearchBox>
-        <ol>
-            {props.places.map(({ place_id, formatted_address, geometry: { location } }) =>
-                <li key={place_id}> {formatted_address} {" at "} ({location.lat()}, {location.lng()}) </li>
-            )}
-        </ol>
+        {
+            props.isInvalidLocation && (
+                <p>Inputted location is not valid. Please enter another one.</p>
+            )
+        }
     </div>
 )
 export default PlacesWithStandaloneSearchBox;

@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
-import { Button } from 'reactstrap';
+import { Container } from 'reactstrap';
 import axios from 'axios';
+
+import CustomerHomePage from '../CustomerHomePage';
+import DriverHomePage from  '../DriverHomePage';
 
 /*
 This component is the main page when the user goes on our site.
@@ -12,9 +15,16 @@ class Home extends Component {
             latitude: 0,
             longitude: 0,
             location: [],
+            isCustomer: null,
         }
     }
 
+    componentDidMount() {
+        const isCustomer = sessionStorage.getItem('customer');
+        this.setState({
+            isCustomer: (isCustomer === 'true') ? true : (isCustomer === 'false') ? false : null,
+        });
+    }
     getGeoLocation = () => {
         const geolocation = navigator.geolocation;
         if (geolocation) {
@@ -43,22 +53,22 @@ class Home extends Component {
 
     render() {
         return (
-            <div>
-                Hello World!
-                <p>Customer? {sessionStorage.getItem('customer')}</p>
-                <p>Driver? {sessionStorage.getItem('driver')}</p>
-                <p>User Id? {sessionStorage.getItem('userId')}</p>
-                <Button onClick={this.getGeoLocation}>Click</Button>
-                {
-                    this.state.latitude !== 0 && this.state.longitude !== 0 && (
-                        <div>
-                            <p>Latitude: {this.state.latitude}</p>
-                            <p>Longitude: {this.state.longitude}</p>
-                            <Button onClick={this.getLocation}>Get Location</Button>
-                        </div>
-                    )
-                }
-            </div>
+            <Container>
+                <center>
+                    <div>
+                        {
+                            this.state.isCustomer === true && (
+                                <CustomerHomePage />
+                            )
+                        }
+                        {
+                            this.state.isCustomer === false && (
+                                <DriverHomePage />
+                            )
+                        }
+                    </div>
+                </center>
+            </Container>
         )
     }
 }
