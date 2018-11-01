@@ -1,8 +1,14 @@
 import React, {Component} from 'react';
-import { Container, Button, Form, FormGroup, Label, Input, CustomInput } from 'reactstrap';
+import { Container, Button, Form, CustomInput, Row, Col} from 'reactstrap';
 import axios from 'axios';
 import history from '../../history';
 import { addDriver } from '../../helper';
+
+import StyledAlert from '../Reusable/StyledAlert';
+import StyledInput from '../Reusable/StyledInput';
+
+import { SPACER } from '../../constants';
+
 /*
 This component renders the form for users to log in.
 Form contains field for username and password.
@@ -14,6 +20,7 @@ class LogIn extends Component {
             username: '',
             password: '',
             isCustomer: '',
+			loginError: false
         }
     }
 
@@ -48,7 +55,6 @@ class LogIn extends Component {
         })
         .then((response) => { // logs user
             if (response.data) {
-                alert('Sucessfully logged in.');
                 sessionStorage.setItem('isLoggedIn', true);
                 sessionStorage.setItem('driver', !this.state.isCustomer);
                 sessionStorage.setItem('customer', this.state.isCustomer);
@@ -63,12 +69,13 @@ class LogIn extends Component {
                         return addDriver(userId, isDriver, 1, latitude, longitude);
                     });
                 }
+				// push to home page on successful login
+				history.push('/');
             } else {
-                alert('Invalid username or password. Please try again.');
+				this.setState({
+					loginError: true
+				});	
             }
-        })
-        .then(() => { // push to home page
-            history.push('/');
         })
         .catch((error) => {
             console.log(error);
@@ -81,20 +88,24 @@ class LogIn extends Component {
             <Container>
                 <h1>Log In</h1>
                 <Form onSubmit={this.authenticate}>
-                    <FormGroup>
-                        <Label for="username">Username</Label>
-                        <Input type="text" name="username" id="username" onChange={this.handleUsernameChange} required />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="password">Password</Label>
-                        <Input type="password" name="password" id="password" onChange={this.handlePasswordChange} required />
-                    </FormGroup>
-                    <FormGroup>
-                        <CustomInput type="radio" id="radio" name="customRadio" label="Customer" 
-                        value="customer" onChange={this.handleCustomerChange} inline required />
-                        <CustomInput type="radio" id="radio1" name="customRadio" label="Driver" 
-                        value="driver" onChange={this.handleCustomerChange} inline required />
-                    </FormGroup>
+					<StyledInput fieldName="username" labelText="Username" xs="4" fieldType="text" changeFunction={this.handleUsernameChange}></StyledInput>
+                    <div style={SPACER} />
+					<StyledInput fieldName="password" labelText="Password" xs="4" fieldType="password" changeFunction={this.handlePasswordChange}></StyledInput>
+					{
+						this.state.loginError && (
+						<StyledAlert color="warning" message="The username or password was incorrect! Please Try again."/>
+						)
+                    }
+                    <div style={SPACER} />
+					<Row>
+						<Col xs={{size: "auto", offset: .5}}>
+							<CustomInput type="radio" id="radio" name="customRadio" label="Customer" value="customer" onChange={this.handleCustomerChange} inline required />
+						</Col>
+						<Col xs={{size: "auto", offset: .5}}>
+							<CustomInput type="radio" id="radio1" name="customRadio" label="Driver" value="driver" onChange={this.handleCustomerChange} inline required />
+						</Col>
+					</Row>
+                    <div style={SPACER} />
                     <Button>Log In</Button>
                 </Form>
             </Container>

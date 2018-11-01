@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Container, Button, Row, Col, Form, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import StandaloneSearchBox from '../Reusable/searchbox'
+import {Container, Button, Row, Col, Form } from 'reactstrap';
 import axios from 'axios';
-import MapWithADirectionsRenderer from '../Reusable/directionsrenderer'
+import AirportDropdown from '../AirportDropdown';
+import StandaloneSearchBox from '../Reusable/Searchbox'
+import MapWithADirectionsRenderer from '../Reusable/DirectionsRenderer'
 import {
 	SFO,
 	OAK,
@@ -187,16 +188,16 @@ class Booking extends Component {
 						this.state.toAirport && (
 							<div>
 								<h1>Select Destination Airport</h1>
-								<Dropdown isOpen={this.state.dropDown2} toggle={this.toggle2}>
-									<DropdownToggle caret>
-									{this.state.dropDown2Text}
-									</DropdownToggle>
-									<DropdownMenu>
-										<DropdownItem value={SFO} onClick={this.select2}>San Francisco International Airport</DropdownItem>
-										<DropdownItem value={OAK} onClick={this.select2}>Oakland International Airport</DropdownItem>
-										<DropdownItem value={SJO} onClick={this.select2}>San Jose International Airport</DropdownItem>
-									</DropdownMenu>
-								</Dropdown>
+								<AirportDropdown
+									labelText={this.state.dropDown2Text}
+									label1={'SFO'}
+									label2={'OAK'}
+									label3={'SJO'}
+									loc1={SFO}
+									loc2={OAK}
+									loc3={SJO}
+									onClick={this.select2}
+								/>
 								<div style={SPACER} />
 							</div>
 						)
@@ -205,16 +206,16 @@ class Booking extends Component {
 						this.state.fromAirport && (
 							<div>
 								<h1>Select Airport to Depart From</h1>
-								<Dropdown isOpen={this.state.dropDown1} toggle={this.toggle1}>
-									<DropdownToggle caret>
-										{this.state.dropDown1Text}
-									</DropdownToggle>
-									<DropdownMenu>
-										<DropdownItem value={SFO} onClick={this.select1}>San Francisco International Airport</DropdownItem>
-										<DropdownItem value={OAK} onClick={this.select1}>Oakland International Airport</DropdownItem>
-										<DropdownItem value={SJO} onClick={this.select1}>San Jose International Airport</DropdownItem>
-									</DropdownMenu>
-								</Dropdown>
+								<AirportDropdown
+									labelText={this.state.dropDown1Text}
+									label1={'SFO'}
+									label2={'OAK'}
+									label3={'SJO'}
+									loc1={SFO}
+									loc2={OAK}
+									loc3={SJO}
+									onClick={this.select1}
+								/>
 								<div style={SPACER} />
 								<h1>Select Destination Location</h1>
 								<StandaloneSearchBox onPlacesChanged={this.updateDestination}/>

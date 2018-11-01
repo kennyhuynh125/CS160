@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
-import { Container, Button, Form, FormGroup, Label, Input } from 'reactstrap';
+import {Container, Button, Form } from 'reactstrap';
 import axios from 'axios';
 
+import StyledAlert from '../Reusable/StyledAlert';
+import StyledInput from '../Reusable/StyledInput';
+import { SPACER } from '../../constants';
 /*
 This component renders the form for users to sign up for an account.
 Form contains field for username and password.
@@ -12,11 +15,8 @@ class SignUp extends Component {
         this.state = {
             username: '',
             password: '',
-        }
-
-        this.handleUsernameChange = this.handleUsernameChange.bind(this);
-        this.handlePasswordChange = this.handlePasswordChange.bind(this);
-        this.signUp = this.signUp.bind(this);
+			signUpError: false,
+        }	
     }
 
     // changes the password state to what the user inpus
@@ -47,7 +47,9 @@ class SignUp extends Component {
                 alert('Thank you for signing up. You may now log in.');
                 this.props.history.push('/login');
             } else {
-                alert('Username is taken. Please try another one.');
+                this.setState({
+					signUpError: true
+				});	
             }
         })
         .catch((error) => {
@@ -60,14 +62,14 @@ class SignUp extends Component {
             <Container>
                 <h1>Sign Up</h1>
                 <Form onSubmit={this.signUp}>
-                    <FormGroup>
-                        <Label for="username">Username</Label>
-                        <Input type="text" name="username" id="username" onChange={this.handleUsernameChange} required />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="password">Password</Label>
-                        <Input type="password" name="password" id="password" onChange={this.handlePasswordChange} required />
-                    </FormGroup>
+					<StyledInput fieldName="username" labelText="Username" xs="4" fieldType="text" changeFunction={this.handleUsernameChange}></StyledInput>
+                    <div style={SPACER} />
+					{this.state.signUpError && (
+						<StyledAlert color="warning" message="This username is taken. Please try another one."/>
+						)
+                    }
+                    <StyledInput fieldName="password" labelText="Password" xs="4" fieldType="password" changeFunction={this.handlePasswordChange}></StyledInput>
+                    <div style={SPACER} />
                     <Button>Sign Up</Button>
                 </Form>
             </Container>
