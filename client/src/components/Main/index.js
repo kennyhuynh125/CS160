@@ -25,7 +25,7 @@ class Main extends Component {
                 <Route exact path="/settings" component={Settings} />
                 <Route exact path="/payment" component={Payment} />
                 <Route exact path="/route" component={RouteMap} />
-				        <Route exact path="/booking" component={Booking} />
+				<Route exact path="/booking" component={Booking} />
             </Container>
         )
     }

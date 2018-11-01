@@ -1,8 +1,8 @@
 import React from 'react';
 import { Button } from 'reactstrap';
 import axios from 'axios';
-import StandaloneSearchBox from './searchbox'
-import MapWithADirectionsRenderer from './directionsrenderer'
+import StandaloneSearchBox from '../Reusable/Searchbox'
+import MapWithADirectionsRenderer from '../Reusable/DirectionsRenderer'
 
 export default class Map extends React.PureComponent {
     constructor(props) {
