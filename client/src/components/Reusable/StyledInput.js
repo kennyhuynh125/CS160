@@ -5,20 +5,17 @@ This component renders the form for users to log in.
 Form contains field for username and password.
 */
 class StyledInput extends Component {
-    constructor(props) {
-        super(props);
-    }
     render() {
         return (
             <Container>
-				<Row>
-					<Label for={this.props.fieldName}>{this.props.labelText}</Label>
-				</Row>
-				<Row>
-					<Col xs={this.props.xs}>
-						<Input type={this.props.fieldType} name={this.props.fieldName} id={this.props.fieldName} onChange={this.props.changeFunction} required />
-					</Col>
-				</Row>
+              <Row>
+                <Label for={this.props.fieldName}>{this.props.labelText}</Label>
+              </Row>
+              <Row>
+                <Col xs={this.props.xs}>
+                  <Input type={this.props.fieldType} name={this.props.fieldName} id={this.props.fieldName} onChange={this.props.changeFunction} required />
+                </Col>
+              </Row>
             </Container>
         )
     }

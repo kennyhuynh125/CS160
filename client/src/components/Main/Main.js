@@ -7,6 +7,7 @@ import {LogIn ,SignUp, UserSettings} from '../Accounts';
 import {Payment} from '../Payment';
 import RouteMap from '../Route/Route';
 import Booking from '../Booking/Booking';
+
 /*
 This component handles all the routes to the different urls.
 There is a route for each path and each route renders a component.

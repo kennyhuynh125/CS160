@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {Container, Button, Form, FormGroup, Label, Input, Row, Col, Alert } from 'reactstrap';
 import axios from 'axios';
-import {StyledInput, StyledAlert} from '../Reusable'
+import { StyledInput, StyledAlert } from '../Reusable'
+import { SPACER } from '../../constants';
 /*
 This component renders the form for users to sign up for an account.
 Form contains field for username and password.
@@ -60,11 +61,13 @@ class SignUp extends Component {
                 <h1>Sign Up</h1>
                 <Form onSubmit={this.signUp}>
 					<StyledInput fieldName="username" labelText="Username" xs="4" fieldType="text" changeFunction={this.handleUsernameChange}></StyledInput>
+                    <div style={SPACER} />
 					{this.state.signUpError && (
 						<StyledAlert color="warning" message="This username is taken. Please try another one."/>
 						)
-					}
+                    }
                     <StyledInput fieldName="password" labelText="Password" xs="4" fieldType="password" changeFunction={this.handlePasswordChange}></StyledInput>
+                    <div style={SPACER} />
                     <Button>Sign Up</Button>
                 </Form>
             </Container>
