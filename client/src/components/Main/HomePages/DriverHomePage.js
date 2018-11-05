@@ -3,10 +3,10 @@ import { Button, Col, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, Unco
 import {
     updateDriverStatus,
     updateDriverLocation,
-} from '../../helper';
+} from '../../../helper';
 import {
     SPACER
-} from '../../constants';
+} from '../../../constants';
 
 /*
 * This component is the home page when a user logs in as a driver.

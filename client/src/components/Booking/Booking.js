@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Container, Button, Row, Col, Form } from 'reactstrap';
 import axios from 'axios';
-import AirportDropdown from '../AirportDropdown';
+import AirportDropdown from './AirportDropdown';
 import {StandaloneSearchBox, MapWithADirectionsRenderer} from '../Reusable'
 import {
 	SFO,

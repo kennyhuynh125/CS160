@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
-import {Col, Button } from 'reactstrap';
+import { Col, Button } from 'reactstrap';
 
 /*
 * This component displays the home page for when a customer signs in.
