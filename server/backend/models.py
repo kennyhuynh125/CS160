@@ -26,5 +26,14 @@ class Driver(models.Model):
     currentLatitude = models.FloatField(default=0)
     currentLongitude = models.FloatField(default=0)
     fixedDriverId = models.IntegerField(null=True)
-    
-    
+
+class RideRequests(models.Model):
+    driverId = models.IntegerField(null=False)
+    userId = models.IntegerField(null=True)
+    customerLatitude = models.FloatField(default=0)
+    customerLongitude = models.FloatField(default=0)
+    destinationLatitude = models.FloatField(default=0)
+    destinationLongitude = models.FloatField(default=0)
+    driverLatitude = models.FloatField(default=0, null=True)
+    driverLongitude = models.FloatField(default=0, null=True)
+    accepted = models.IntegerField(default=0)

@@ -36,8 +36,15 @@ class Booking extends Component {
 			nearestDriver: -1,
 			distance: -1,
 			duration: -1,
+			driverUserId: null,
+			driverLatitude: 0,
+			driverLongitude: 0,
+			driverId: null,
+			isWaiting: false,
+			requestId: 0,
+			driverHasAccepted: null,
+			points: [],
 			fare: 0,
-			path: new Array(),
         }
 	}
 	
@@ -117,7 +124,8 @@ class Booking extends Component {
 		dropDown1Text: chosenAirport,
 		start: coordinates,
 		}, () => {
-			this.getDistanceAndDuration()
+			this.getDistanceAndDuration();
+			this.getDriver();
 		});
 	}
 
@@ -136,7 +144,8 @@ class Booking extends Component {
 		dropDown2Text: chosenAirport,
 		dest: coordinates,
 		}, () => {
-			this.getDistanceAndDuration()
+			this.getDistanceAndDuration();
+			this.getDriver();
 		});
 	}
 
@@ -165,10 +174,74 @@ class Booking extends Component {
 			longitude: this.state.start[1],
 		})
 		.then((response) => {
+			console.log(response);
 			this.setState({
 				nearestDriver: response.data[0].duration,
+				driverUserId: response.data[0].driverUserId,
+				driverLatitude: response.data[0].currentLatitude,
+				driverLongitude: response.data[0].currentLongitude,
+				driverId: response.data[0].driverId,
+			});
+		});
+	}
+
+	requestRide = () => {
+		// null means that the nearest driver is a fixed driver
+		// if available, start driving
+		if (this.state.driverUserId === null) {
+			// set state to begin driving
+			console.log("driver found, driving to you right now.");
+		} else {
+			// driver is a user
+			axios.post(`/api/addriderequest`, {
+				driverId: this.state.driverId,
+				userId: this.state.driverUserId,
+				customerLatitude: this.state.start[0],
+				customerLongitude: this.state.start[1],
+				destinationLatitude: this.state.dest[0],
+				destinationLongitude: this.state.dest[1],
+				driverLatitude: this.state.driverLatitude,
+				driverLongitude: this.state.driverLongitude,
+				accepted: 0,
 			})
-			console.log(response);
+			.then((response) => {
+				if (response.data !== false) {
+					this.setState({
+						isWaiting: true,
+						requestId: response.data,
+					}, () => {
+						const interval = setInterval(() => {this.findRide()}, 3000);
+						this.setState({
+							interval: interval,
+						})
+					});
+				}
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+		}
+	}
+
+	findRide = () => {
+		// continuously keep calling api to check if id of request is still in db
+		axios.post('/api/getcustomerrequests', {
+			requestId: this.state.requestId
+		})
+		.then((response) => {
+			const request = response.data[0];
+			console.log(request);
+			if (request.accepted !== 0) {
+				this.setState({
+					driverHasAccepted: request.accepted === 1,
+					isWaiting: false,
+				}, () => {
+					clearInterval(this.state.interval);
+				});
+			}
+		})
+		.catch((error) => {
+			console.log(error);
 		});
 	}
 
@@ -176,7 +249,18 @@ class Booking extends Component {
 		if(this.state.distance <= 2) this.setState({fare: 0,});
 		else this.setState({fare: 15 + 0.5 * this.state.distance + 0.25 * this.state.duration,});
 	}
-
+  
+	setPath = (path) => {
+		if(path !== null) {
+			let points = []
+			for (const point of path) {
+				points.push([point.lat(), point.lng()]);
+			}
+			this.setState({
+				point: points,
+			});
+		}
+	}
     render() {
 		console.log(this.state);
         return (
@@ -238,7 +322,8 @@ class Booking extends Component {
 									latitude={this.state.start[0]} 
 									longitude={this.state.start[1]} 
 									destLatitude={this.state.dest[0]} 
-									destLongitude={this.state.dest[1]} 
+									destLongitude={this.state.dest[1]}
+									setPath={this.setPath}
                             	/>
 								<div style={SPACER} />
 								{
@@ -260,10 +345,30 @@ class Booking extends Component {
 										<p>There are no drivers in your area. Please try again later.</p>
 									)
 								}
-								{this.state.refresh && (<p>Replace with call to backend</p>)}
-								<Form>
-									<Button onClick={this.getDriver}>Request a Ride</Button>
-								</Form>
+								{
+									!this.state.isWaiting && this.state.driverHasAccepted !== true && (
+										<div>
+											{
+												this.state.driverHasAccepted === false && (
+													<p>Driver declined. Please try again.</p>
+												)
+											}
+											<Form>
+												<Button onClick={this.requestRide}>Request a Ride</Button>
+											</Form>
+										</div>
+									)
+								}
+								{
+									this.state.isWaiting && (
+										<p>Notifying driver...</p>
+									)
+								}
+								{
+									!this.state.isWaiting && this.state.driverHasAccepted && (
+										<p>Driver has accepted. Driver is now on its way.</p>
+									)
+								}
 							</div>
 						)
 					}

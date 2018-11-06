@@ -2,12 +2,13 @@ from datetime import datetime
 from django.core import serializers
 from django.shortcuts import render
 from django.forms.models import model_to_dict
+from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import User, Payment, Driver
-from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer
+from .models import User, Payment, Driver, RideRequests
+from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer, RideRequestsSerializer
 from django.conf import settings
 
 import googlemaps
@@ -196,12 +197,83 @@ class GetDriver(generics.ListCreateAPIView):
                 closestDriver = driver
         json_data=[]
         json_obj={}
-        json_obj['driverLatitude']=closestDriver.currentLatitude
-        json_obj['driverLongitude']=closestDriver.currentLongitude
-        json_obj['duration']= int(round(shortestTime / 60))
+        json_obj['driverLatitude'] = closestDriver.currentLatitude
+        json_obj['driverLongitude'] = closestDriver.currentLongitude
+        json_obj['duration'] = int(round(shortestTime / 60))
+        json_obj['driverUserId'] = closestDriver.userId
+        json_obj['driverId'] = closestDriver.id
         json_data.append(json_obj)
         return Response(json_data)
 
+
+class AddRequest(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        data_serializer = RideRequestsSerializer(data=request.data)
+        if data_serializer.is_valid():
+            instance = data_serializer.save()
+            return Response(instance.id)
+        else:
+            return Response(False)
+
+
+class GetRequestByDriverUserId(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        try:
+            currentRequest = RideRequests.objects.get(userId=request.data['driverUserId'], accepted=0)
+            json_data = []
+            json_obj = {}
+            if request:
+                json_obj['requestId'] = currentRequest.id
+                json_obj['driverId'] = currentRequest.driverId
+                json_obj['userId'] = currentRequest.userId
+                json_obj['customerLatitude'] = currentRequest.customerLatitude
+                json_obj['customerLongitude'] = currentRequest.customerLongitude
+                json_obj['destinationLatitude'] = currentRequest.destinationLatitude
+                json_obj['destinationLongitude'] = currentRequest.destinationLongitude
+                json_obj['accepted'] = 0 if currentRequest.accepted is None else currentRequest.accepted
+                json_data.append(json_obj)
+            return Response(json_data)
+        except ObjectDoesNotExist:
+            return Response([])
+
+
+class GetRequestByRequestId(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        try:
+            currentRequest = RideRequests.objects.get(id=request.data['requestId'])
+            json_data = []
+            json_obj = {}
+            if request:
+                json_obj['requestId'] = currentRequest.id
+                json_obj['driverId'] = currentRequest.driverId
+                json_obj['userId'] = currentRequest.userId
+                json_obj['customerLatitude'] = currentRequest.customerLatitude
+                json_obj['customerLongitude'] = currentRequest.customerLongitude
+                json_obj['destinationLatitude'] = currentRequest.destinationLatitude
+                json_obj['destinationLongitude'] = currentRequest.destinationLongitude
+                json_obj['accepted'] = 0 if currentRequest.accepted is None else currentRequest.accepted
+                json_data.append(json_obj)
+            return Response(json_data)
+        except ObjectDoesNotExist:
+            return Response([])
+
+
+class UpdateRequest(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        accepted = request.data['accepted'];
+        currentRequest = RideRequests.objects.get(userId=request.data['driverUserId'], accepted=0)
+        currentRequest.accepted = accepted
+        try:
+            currentRequest.save()
+            return Response(accepted)
+        except Exception as e:
+            print(e)
+            return Response(False)
+            
 
 class GetDurationAndDistance(generics.ListCreateAPIView):
     queryset = Driver.objects.all()

@@ -15,5 +15,9 @@ urlpatterns = [
     path('updatefixedlocation', views.UpdateFixedDriverLocation.as_view()),
     path('updatefixedstatus', views.UpdateFixedDriverStatus.as_view()),
     path('getdriver', views.GetDriver.as_view()),
-    path('getdirectioninfo', views.GetDurationAndDistance.as_view())
+    path('getdirectioninfo', views.GetDurationAndDistance.as_view()),
+    path('getdriverrequests', views.GetRequestByDriverUserId.as_view()),
+    path('addriderequest', views.AddRequest.as_view()),
+    path('getcustomerrequests', views.GetRequestByRequestId.as_view()),
+    path('updaterequest', views.UpdateRequest.as_view()),
 ]

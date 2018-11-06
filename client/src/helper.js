@@ -62,3 +62,21 @@ export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude
         });
     }
 };
+
+// make api call to update request decision.
+export const updateRequest = (driverUserId, accepted, callback) => {
+    axios.post('/api/updaterequest', {
+        driverUserId: driverUserId,
+        accepted: accepted,
+    })
+    .then((response) => {
+        console.log('updated.');
+        console.log(response);
+        if(callback) {
+            callback(response);
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+}
