@@ -249,7 +249,7 @@ class Booking extends Component {
 		if(this.state.distance <= 2) this.setState({fare: 0,});
 		else this.setState({fare: 15 + 0.5 * this.state.distance + 0.25 * this.state.duration,});
 	}
-
+  
 	setPath = (path) => {
 		if(path !== null) {
 			let points = []
@@ -261,7 +261,6 @@ class Booking extends Component {
 			});
 		}
 	}
-
     render() {
 		console.log(this.state);
         return (
