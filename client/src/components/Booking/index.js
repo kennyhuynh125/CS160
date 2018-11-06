@@ -36,6 +36,8 @@ class Booking extends Component {
 			nearestDriver: -1,
 			distance: -1,
 			duration: -1,
+			fare: 0,
+			path: new Array(),
         }
 	}
 	
@@ -80,7 +82,8 @@ class Booking extends Component {
 			this.setState({
 				duration: response.data[0].duration,
 				distance: response.data[0].distance,
-			})
+			});
+			this.calculateFare();
 		});
 	}
 
@@ -169,6 +172,11 @@ class Booking extends Component {
 		});
 	}
 
+	calculateFare = () => {
+		if(this.state.distance <= 2) this.setState({fare: 0,});
+		else this.setState({fare: 15 + 0.5 * this.state.distance + 0.25 * this.state.duration,});
+	}
+
     render() {
 		console.log(this.state);
         return (
@@ -236,14 +244,20 @@ class Booking extends Component {
 								{
 									this.state.duration !== -1 && this.state.distance !== -1 && (
 										<div>
-											<p>Distance: {this.state.distance} miles</p>
-											<p>Duration: {this.state.duration} minutes</p>
+											<p><b>Distance:</b> {this.state.distance} miles</p>
+											<p><b>Duration:</b> {this.state.duration} minutes</p>
+											<p><b>Fare:</b> ${this.state.fare}</p>
 										</div>
 									)
 								}
 								{
-									this.state.nearestDriver !== -1 && (
+									this.state.nearestDriver !== -1 && this.state.nearestDriver <= 30 && (
 										<p>Nearest driver is {this.state.nearestDriver} minutes away.</p>
+									)
+								}
+								{
+									this.state.nearestDriver !== -1 && this.state.nearestDriver > 30 && (
+										<p>There are no drivers in your area. Please try again later.</p>
 									)
 								}
 								{this.state.refresh && (<p>Replace with call to backend</p>)}
