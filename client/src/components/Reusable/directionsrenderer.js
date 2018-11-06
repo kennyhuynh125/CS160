@@ -27,6 +27,9 @@ const MapWithADirectionsRenderer = compose(
                         destination: new google.maps.LatLng(this.props.destLatitude, this.props.destLongitude),
                         travelMode: google.maps.TravelMode.DRIVING,
                     }, (result, status) => {
+                        if (result !== null && result.routes.length !== 0) {
+                            this.props.setPath(result.routes[0].overview_path);
+                        }
                         if (status === google.maps.DirectionsStatus.OK) {
                             this.setState({
                                 directions: result
