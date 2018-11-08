@@ -45,6 +45,10 @@ class Booking extends Component {
 			driverHasAccepted: null,
 			points: [],
 			fare: 0,
+			pointIndex: 0,
+			driverToCustomer: false,
+			initialStart: [],
+			initialDest: [],
         }
 	}
 	
@@ -178,19 +182,30 @@ class Booking extends Component {
 			this.setState({
 				nearestDriver: response.data[0].duration,
 				driverUserId: response.data[0].driverUserId,
-				driverLatitude: response.data[0].currentLatitude,
-				driverLongitude: response.data[0].currentLongitude,
+				driverLatitude: response.data[0].driverLatitude,
+				driverLongitude: response.data[0].driverLongitude,
 				driverId: response.data[0].driverId,
 			});
 		});
 	}
 
+	// makes a request to nearest driver
 	requestRide = () => {
 		// null means that the nearest driver is a fixed driver
 		// if available, start driving
 		if (this.state.driverUserId === null) {
-			// set state to begin driving
-			console.log("driver found, driving to you right now.");
+			const initialStart = [this.state.start[0], this.state.start[1]];
+			const initialDest = [this.state.dest[0], this.state.dest[1]];
+			const dest = [this.state.start[0], this.state.start[1]];
+			const start = [this.state.driverLatitude, this.state.driverLongitude];
+			this.setState({
+				driverToCustomer: true,
+				start: start,
+				dest: dest,
+				initialStart: initialStart,
+				initialDest: initialDest,
+				interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 150),
+			});
 		} else {
 			// driver is a user
 			axios.post(`/api/addriderequest`, {
@@ -223,17 +238,24 @@ class Booking extends Component {
 		}
 	}
 
+	// makes api call to check if driver accepted/decline ride request
 	findRide = () => {
-		// continuously keep calling api to check if id of request is still in db
 		axios.post('/api/getcustomerrequests', {
 			requestId: this.state.requestId
 		})
 		.then((response) => {
 			const request = response.data[0];
-			console.log(request);
-			if (request.accepted !== 0) {
+			if (request.accepted === 1) {
 				this.setState({
-					driverHasAccepted: request.accepted === 1,
+					driverHasAccepted: true,
+					driverToCustomer: true,
+					isWaiting: false,
+					interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 150),
+				})
+			} else if(request.accepted === -1) {
+				this.setState({
+					driverHasAccepted: false,
+					driverToCustomer: false,
 					isWaiting: false,
 				}, () => {
 					clearInterval(this.state.interval);
@@ -245,11 +267,13 @@ class Booking extends Component {
 		});
 	}
 
+	// calculates fare based on distance and duration
 	calculateFare = () => {
 		if(this.state.distance <= 2) this.setState({fare: 0,});
 		else this.setState({fare: 15 + 0.5 * this.state.distance + 0.25 * this.state.duration,});
 	}
   
+	// sets array of points along the route
 	setPath = (path) => {
 		if(path !== null) {
 			let points = []
@@ -261,8 +285,39 @@ class Booking extends Component {
 			});
 		}
 	}
+
+	// walks trough the path 
+	walkThroughPath = (pointIndex) => {
+		if (pointIndex >= this.state.point.length && this.state.driverToCustomer) {
+			alert('Driver has arrived.');
+			this.setState({
+				pointIndex: 0,
+				driverToCustomer: false,
+				start: this.state.initialStart,
+				dest: this.state.initialDest,
+			});
+		} else if (pointIndex >= this.state.point.length && this.state.driverToCustomer === false) {
+			alert('You have arrived at your destination.');
+			this.setState({
+				pointIndex: 0,
+				start: [0,0],
+				dest: [0,0],
+				initialStart: [],
+				initialDest: [],
+			}, () => {
+				clearInterval(this.state.interval);
+			})
+		} else {
+			const point = this.state.point[pointIndex];
+			this.setState({
+				pointIndex: this.state.pointIndex + 1,
+				driverLatitude: point[0],
+				driverLongitude: point[1],
+			});
+		}
+	}
+
     render() {
-		console.log(this.state);
         return (
             <Container>
                 <h1>Book a Ride</h1>
@@ -324,7 +379,9 @@ class Booking extends Component {
 									destLatitude={this.state.dest[0]} 
 									destLongitude={this.state.dest[1]}
 									setPath={this.setPath}
-                            	/>
+									driverLat={this.state.driverLatitude}
+									driverLng={this.state.driverLongitude}
+								/>
 								<div style={SPACER} />
 								{
 									this.state.duration !== -1 && this.state.distance !== -1 && (
