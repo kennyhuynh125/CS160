@@ -126,13 +126,14 @@ class UpdateDriverLocation(generics.ListCreateAPIView):
         user_id = request.data['userId']
         latitude = request.data['latitude']
         longitude = request.data['longitude']
-        driver = Driver.objects.get(id=user_id)
+        driver = Driver.objects.get(userId=user_id)
         driver.currentLatitude = latitude
         driver.currentLongitude = longitude
         try:
             driver.save()
             return Response(True)
-        except:
+        except Exception as e:
+            print(e);
             return Response(False)
 
 
@@ -140,14 +141,15 @@ class UpdateDriverStatus(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     def post(self, request):
-        user_id = request.data['userId']
-        status = request.data['status']
-        driver = Driver.objects.get(id=user_id)
-        driver.status = status
         try:
+            user_id = request.data['userId']
+            status = request.data['status']
+            driver = Driver.objects.get(userId=user_id)
+            driver.status = status
             driver.save()
-            return Response(True)
-        except:
+            return Response(driver.status)
+        except Exception as e:
+            print(e)
             return Response(False)
 
 class UpdateFixedDriverStatus(generics.ListCreateAPIView):

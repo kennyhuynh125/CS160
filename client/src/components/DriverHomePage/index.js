@@ -34,15 +34,6 @@ class DriverHomePage extends Component {
         }
     }
 
-    componentDidMount() {
-        const userId = sessionStorage.getItem('userId');
-        let interval = setInterval(() => { this.checkForNewCustomers(userId) }, 3000);
-        this.setState({
-            interval: interval
-        });
-
-    }
-
     checkForNewCustomers = (userId) => {
         console.log(userId);
        axios.post('/api/getdriverrequests', {
@@ -67,9 +58,6 @@ class DriverHomePage extends Component {
        .catch((error) => {
            console.log(error);
        });
-    }
-
-    componentWillUnmount() {
     }
     
     // makes request to api to update status
@@ -100,12 +88,14 @@ class DriverHomePage extends Component {
                 const longitude = position.coords.longitude;
                 const userId = sessionStorage.getItem('userId');
                 const isDriver = sessionStorage.getItem('driver');
-                updateDriverLocation(userId, isDriver, latitude, longitude, () => {
-                    this.setState({
-                        hasUpdatedLocation: true,
-                        newLatitude: latitude,
-                        newLongitude: longitude,
-                    });
+                updateDriverLocation(userId, isDriver, latitude, longitude, (response) => {
+                    if (response === true) {
+                        this.setState({
+                            hasUpdatedLocation: true,
+                            newLatitude: latitude,
+                            newLongitude: longitude,
+                        });
+                    }
                 });
             });
         }

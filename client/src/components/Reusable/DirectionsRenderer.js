@@ -7,6 +7,7 @@ import {
   GoogleMap,
   DirectionsRenderer,
   TrafficLayer,
+  Marker,
 } from "react-google-maps";
 
 const MapWithADirectionsRenderer = compose(
@@ -30,29 +31,23 @@ const MapWithADirectionsRenderer = compose(
                         if (result !== null && result.routes.length !== 0) {
                             this.props.setPath(result.routes[0].overview_path);
                         }
-                        if (status === google.maps.DirectionsStatus.OK) {
-                            this.setState({
-                                directions: result
-                        });
-                    } else {
-                        console.error(`error fetching directions ${result}`);
-                    }
+                        if (result !== null) {
+                            if (status === google.maps.DirectionsStatus.OK) {
+                                this.setState({
+                                    directions: result
+                                });
+                            } else {
+                                console.error(`error fetching directions ${result}`);
+                            }
+                        }
+                    });
+                },
+                onPointChange: () => {
+                    this.setState({
+                        driverLat: this.props.driveLat,
+                        driverLng: this.props.driveLng,
                     });
                 }
-            });
-            const DirectionsService = new google.maps.DirectionsService();
-            DirectionsService.route({
-                origin: new google.maps.LatLng(this.props.latitude, this.props.longitude),
-                destination: new google.maps.LatLng(this.props.destLatitude, this.props.destLongitude),
-                travelMode: google.maps.TravelMode.DRIVING,
-            }, (result, status) => {
-                if (status === google.maps.DirectionsStatus.OK) {
-                    this.setState({
-                        directions: result
-                });
-            } else {
-                console.error(`error fetching directions ${result}`);
-            }
             });
         },
     }),
@@ -63,6 +58,10 @@ const MapWithADirectionsRenderer = compose(
     >
     <TrafficLayer autoUpdate />
     {props.onDirectionChange()}
+    {props.onPointChange}
+    <Marker
+        position={{ lat: props.driverLat, lng: props.driverLng }}
+    />
     {props.directions && <DirectionsRenderer directions={props.directions} />}
     </GoogleMap>
 );
