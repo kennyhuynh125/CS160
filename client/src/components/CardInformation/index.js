@@ -9,7 +9,7 @@ const CardInformation = (props) => {
         <div>
             {
                 props.cards !== undefined && props.cards.length !== 0 && (
-                    <Table bordered hover>
+                    <Table bordered hover striped>
                         <thead>
                             <tr>
                                 <th>Name</th>

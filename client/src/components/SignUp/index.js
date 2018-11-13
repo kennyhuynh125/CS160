@@ -60,18 +60,21 @@ class SignUp extends Component {
     render() {
         return (
             <Container>
-                <h1>Sign Up</h1>
+            <center><div style={{width:'50%'}}>
+                <br/><h1>Sign Up</h1>
                 <Form onSubmit={this.signUp}>
-					<StyledInput fieldName="username" labelText="Username" xs="4" fieldType="text" changeFunction={this.handleUsernameChange}></StyledInput>
+					<StyledInput fieldName="username" labelText="Username" fieldType="text" changeFunction={this.handleUsernameChange}></StyledInput>
                     <div style={SPACER} />
 					{this.state.signUpError && (
 						<StyledAlert color="warning" message="This username is taken. Please try another one."/>
 						)
                     }
-                    <StyledInput fieldName="password" labelText="Password" xs="4" fieldType="password" changeFunction={this.handlePasswordChange}></StyledInput>
+                    <StyledInput fieldName="password" labelText="Password" fieldType="password" changeFunction={this.handlePasswordChange}></StyledInput>
                     <div style={SPACER} />
-                    <Button>Sign Up</Button>
+                    <Button color="info" block>Sign Up</Button>
                 </Form>
+                <p/>Have an account? <a href="/login">Log in</a>
+                </div></center>
             </Container>
         )
     }

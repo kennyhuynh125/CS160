@@ -2,6 +2,8 @@ import React, { Component, Fragment } from 'react';
 import history from '../../history';
 import { Container, Collapse, Navbar, NavbarToggler, NavbarBrand, Nav, NavItem, NavLink} from 'reactstrap';
 import { updateDriverStatus } from '../../helper';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 
 /*
 This component renders the header on the top of the screen.
@@ -34,15 +36,12 @@ class Header extends Component {
     render() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         return (
-            <Container>
-                <Navbar expand="md">
-                    <NavbarBrand href="/" className="mr-auto">LetItFly</NavbarBrand>
+            <Navbar color="dark" dark expand="md" sticky="top">
+                <Container>
+                <NavbarBrand href="/" className="mr-auto"><div style={{color:'#fff'}}><FontAwesomeIcon icon={faPaperPlane} /> LetItFly</div></NavbarBrand>
                     <NavbarToggler onClick={this.toggle} className="mr-2" />
                     <Collapse isOpen={!this.state.isOpen} navbar>
                         <Nav className="ml-auto" navbar>
-                            <NavItem>
-                                <NavLink href="/">Home</NavLink>
-                            </NavItem>
                             {
                                 !isLoggedIn && (
                                     <Fragment>
@@ -59,6 +58,9 @@ class Header extends Component {
                                 isLoggedIn && (
                                     <Fragment>
                                         <NavItem>
+                                            <NavLink href="/homepage">Home</NavLink>
+                                        </NavItem>
+                                        <NavItem>
                                             <NavLink href="/payment">Payment Settings</NavLink>
                                         </NavItem>
                                         <NavItem>
@@ -72,8 +74,8 @@ class Header extends Component {
                             }
                         </Nav>
                     </Collapse>
-                </Navbar>
-            </Container>
+                </Container>
+            </Navbar>
         )
     }
 }

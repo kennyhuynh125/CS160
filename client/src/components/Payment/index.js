@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import { Container, Collapse, Button, CardBody, Card, Form, FormGroup, Label, Input } from 'reactstrap';
+import { Container, Collapse, Button, CardBody, Card, Form, FormGroup, Label, Input, Col, Row } from 'reactstrap';
 import axios from 'axios';
 
 import CardInformation from '../CardInformation';
+import SavedAddresses from '../SavedAddresses';
 
 export default class Payment extends Component {
     constructor(props) {
@@ -100,6 +101,8 @@ export default class Payment extends Component {
     }
 
     addAddress = (e) => {}
+    handleFirstNameChange = (e) => {}
+    handleLastNameChange = (e) => {}
     handleStreetChange = (e) => {}
     handleAptNumChange = (e) => {}
     handleCityChange = (e) => {}
@@ -115,18 +118,21 @@ export default class Payment extends Component {
                 {
                     isLoggedIn && (
                         <div>
-                        <h2>Payment Information</h2>
-                            <h5>Saved Cards</h5>
+                        <br/><h2>Payment Information</h2>
+                            <br/><h5>Saved Cards</h5>
                             <CardInformation cards={this.state.savedCards} />
-                            <Button onClick={this.toggleCard} style={{ marginBottom: '1rem' }}>Add New Card</Button>
+                            <p/><Button onClick={this.toggleCard} style={{ marginBottom: '1rem' }} color="info">Add New Card</Button>
                                 <Collapse isOpen={this.state.collapseCard}>
                                 <Card>
                                     <CardBody>
                                     <Form onSubmit={this.addCard}>
+                                        <Row form><Col md={9}>
                                         <FormGroup onSubmit={this.addCard}>
                                             <Label for="Name">Name</Label>
                                             <Input type="text" name="name" id="name" onChange={this.handleNameChange} required />
                                         </FormGroup>
+                                        </Col>
+                                        <Col md={3}>
                                         <FormGroup>
                                             <Label for="ccnum">Credit Card Type</Label>
                                             <Input type="select" name="cctype" id="cctype" onChange={this.handleCardTypeChange} required>
@@ -137,14 +143,19 @@ export default class Payment extends Component {
                                                 <option value="discover">Discover</option>
                                             </Input>
                                         </FormGroup>
+                                        </Col>
+                                        </Row>
+
                                         <FormGroup>
                                             <Label for="ccnum">Credit Card Number (15 - 19 digits)</Label>
                                             <Input pattern=".{15,19}" type="password" name="ccnum" id="ccnum" onChange={this.handleCardNumChange} required />
                                         </FormGroup>
+                                        <Row form><Col md={6}>
                                         <FormGroup>
                                             <Label for="cccvv">Credit Card CVV</Label>
                                             <Input type="number" name="cccvv" id="cccvv" onChange={this.handleCardCodeChange} required />
                                         </FormGroup>
+                                        </Col><Col md={3}>
                                         <FormGroup>
                                             <Label for="expdate">Expiration Date</Label>
                                             <Input type="select" name="exmonth" id="expmonth" onChange={this.handleExpMonthChange} required>
@@ -162,6 +173,9 @@ export default class Payment extends Component {
                                                 <option value="11">November</option>
                                                 <option value="12">December</option>
                                             </Input>
+                                        </FormGroup>
+                                        </Col><Col md={3}>
+                                        <FormGroup><Label for="expdate">Year</Label>
                                             <Input type="select" name="expyear" id="expyear" onChange={this.handleExpYearChange} required>
                                                 <option value="">None</option>
                                                 <option value="18">2018</option>
@@ -173,42 +187,64 @@ export default class Payment extends Component {
                                                 <option value="24">2024</option>
                                             </Input>
                                         </FormGroup>
-                                        <Button>Submit</Button>
+                                        </Col></Row>
+                                        <Button color="info">Submit</Button>
                                     </Form>
                                     </CardBody>
                                 </Card>
-                            </Collapse>
+                            </Collapse><hr/>
                             <h5>Billing Address</h5>
-                            {this.state.savedAddresses}
-                            <Button onClick={this.toggleAddr} style={{ marginBottom: '1rem' }}>Add New Address</Button>
+                            <SavedAddresses cards={this.state.savedAddresses} />
+                            <p/><Button onClick={this.toggleAddr} style={{ marginBottom: '1rem' }} color="info">Add New Address</Button>
                                 <Collapse isOpen={this.state.collapseAddr}>
                                 <Card>
                                     <CardBody>
-                                    <Form>
-                                        <FormGroup onSubmit={this.addAddress}>
+                                    <Form onSubmit={this.addAddress}>
+                                        <Row><Col md={6}>
+                                        <FormGroup>
+                                            <Label for="firstname">First Name</Label>
+                                            <Input type="text" name="firstname" id="firstname" onChange={this.handleFirstNameChange} required />
+                                        </FormGroup>
+                                        </Col>
+                                        <Col md={6}>
+                                        <FormGroup>
+                                            <Label for="lastname">Last Name</Label>
+                                            <Input type="text" name="lastname" id="lastname" onChange={this.handleLastNameChange} required />
+                                        </FormGroup>
+                                        </Col></Row>
+                                        <Row><Col md={8}>
+                                        <FormGroup>
                                             <Label for="street">Street</Label>
                                             <Input type="text" name="street" id="street" onChange={this.handleStreetChange} required />
                                         </FormGroup>
+                                        </Col><Col md={4}>
                                         <FormGroup>
                                             <Label for="aptno">Apartment Number</Label>
                                             <Input type="text" name="aptno" id="aptno" onChange={this.handleAptNumChange} />
                                         </FormGroup>
+                                        </Col></Row>
+                                        <Row><Col md={6}>
                                         <FormGroup>
                                             <Label for="city">City</Label>
                                             <Input type="text" name="city" id="city" onChange={this.handleCityChange} />
                                         </FormGroup>
+                                        </Col><Col md={2}>
                                         <FormGroup>
                                             <Label for="state">State</Label>
                                             <Input type="select" name="state" id="state" onChange={this.handleStateChange}>
                                                 <option value="CA">CA</option>
                                                 <option value="x">other states here</option>
                                             </Input>
+                                        </FormGroup>
+                                        </Col><Col md={4}>
+                                        <FormGroup>
                                             <Label for="country">Country</Label>
                                             <Input type="select" name="country" id="country" onChange={this.handleCountryChange}>
                                                 <option value="USA">USA</option>
                                             </Input>
                                         </FormGroup>
-                                        <Button>Submit</Button>
+                                        </Col></Row>
+                                        <Button color="info">Submit</Button>
                                     </Form>
                                     </CardBody>
                                 </Card>

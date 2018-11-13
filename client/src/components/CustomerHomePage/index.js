@@ -10,15 +10,15 @@ class CustomerHomePage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            
         }
     }
+
     render() {
         return (
             <div>
-                <h1>Hello Customer!</h1>
+                <br/><h1>Welcome back!</h1>
                 <Col>
-                    <a href="/booking"><Button color="primary"><FontAwesomeIcon icon={faPaperPlane} /> Request a Ride</Button></a>
+                    <a href="/booking"><Button color="info"><FontAwesomeIcon icon={faPaperPlane} /> Request a Ride</Button></a>
                 </Col>
             </div>
         )
