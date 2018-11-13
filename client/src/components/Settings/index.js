@@ -1,16 +1,18 @@
 import React, {Component} from 'react';
-import { Container, ButtonGroup, Button } from 'reactstrap';
+import { Container, ButtonGroup, Button, Form, FormGroup, Label, Input, FormText} from 'reactstrap';
 import Editable from 'react-x-editable';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
+//import { Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 //requires you to install react-x-editable: npm install react-x-editable
 
-export default class Settings extends Component {
+export default class Settings extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            firstName: 'First Name',
-            lastName: 'Last Name',
-            email: 'E-mail',
-            phone: 'Phone',
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
         }
     }
 
@@ -43,14 +45,59 @@ export default class Settings extends Component {
         })
     }
 
+    handleValidSubmit(event, values) {
+        this.setState({email: values.email});
+    }
+
+    handleInvalidSubmit(event, errors, values) {
+        this.setState({email: values.email, error: true});
+    }
 
     render() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         return (
-            <Container>
-                {
-                    isLoggedIn && (
-                        <div>
+            <Form>
+                <FormGroup>
+                    <legend>Account Settings</legend>
+                </FormGroup>
+                <FormGroup>
+                    <Label for="exampleFirstName">First Name</Label>
+                    <Input type="firstName" name="firstName" id="exampleFirstName" placeholder="with a placeholder" onUpdate={this.handleFirstNameChange}/>
+                </FormGroup>
+                <FormGroup>
+                    <Label for="exampleLastName">Last Name</Label>
+                    <Input type="lastName" name="lastName" id="exampleLastName" placeholder="with a placeholder" onUpdate={this.handleLastNameChange}/>
+                </FormGroup>
+                <AvForm onValidSubmit={this.handleValidSubmit} onInvalidSubmit={this.handleInvalidSubmit}>
+                    <AvField name="email" label="Email Address" type="email" required placeholder="with a placeholder" onUpdate={this.handleEmailChange}/>
+                </AvForm>
+                <AvForm>
+                    <AvField name="phoneNumber" label="Phone Number" type="tel" placeholder="with a placeholder" onUpdate={this.handleEmailChange}/>
+                </AvForm>
+                    <FormGroup tag="fieldset">
+                    <label>Allow Detour</label>
+                    <FormGroup check>
+                        <Label check>
+                            <Input type="radio" name="radio1" />{' '}
+                            Yes
+                        </Label>
+                    </FormGroup>
+                    <FormGroup check>
+                        <Label check>
+                            <Input type="radio" name="radio1" />{' '}
+                            No
+                        </Label>
+                    </FormGroup>
+                </FormGroup>
+                < Button > Submit </Button>
+                <h5><a href="/">Ride History</a></h5>
+                <h5><a href="/">Change Password</a></h5>
+            </Form>
+        );
+    }
+}
+
+                            /*
                             <h2>Account Settings</h2>
                             <h5>First Name:</h5>
                             <Editable
@@ -102,7 +149,6 @@ export default class Settings extends Component {
                             </ButtonGroup>
                             <h5><a href="/">Ride History</a></h5>
                             <h5><a href="/">Change Password</a></h5>
-                        </div>
                     )
                 }
                 {
@@ -110,7 +156,9 @@ export default class Settings extends Component {
                         <div>You must be logged in to access this page!</div>
                     )
                 }
-            </Container>
+
+            </Form>
         );
     }
 }
+*/
