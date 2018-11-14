@@ -59,6 +59,7 @@ class LogIn extends Component {
                 sessionStorage.setItem('driver', !this.state.isCustomer);
                 sessionStorage.setItem('customer', this.state.isCustomer);
                 sessionStorage.setItem('userId', response.data);
+
                 userId = sessionStorage.getItem('userId');
                 isDriver = sessionStorage.getItem('driver');
                 const geolocation = navigator.geolocation;
@@ -70,7 +71,7 @@ class LogIn extends Component {
                     });
                 }
 				// push to home page on successful login
-				history.push('/');
+				history.push('/homepage');
             } else {
 				this.setState({
 					loginError: true
@@ -86,11 +87,12 @@ class LogIn extends Component {
     render() {
         return (
             <Container>
-                <h1>Log In</h1>
+            <center><div style={{width:'50%'}}>
+                <br/><h1>Log In</h1>
                 <Form onSubmit={this.authenticate}>
-					<StyledInput fieldName="username" labelText="Username" xs="4" fieldType="text" changeFunction={this.handleUsernameChange}></StyledInput>
+					<StyledInput fieldName="username" labelText="Username" fieldType="text" changeFunction={this.handleUsernameChange}></StyledInput>
                     <div style={SPACER} />
-					<StyledInput fieldName="password" labelText="Password" xs="4" fieldType="password" changeFunction={this.handlePasswordChange}></StyledInput>
+					<StyledInput fieldName="password" labelText="Password" fieldType="password" changeFunction={this.handlePasswordChange}></StyledInput>
 					{
 						this.state.loginError && (
 						<StyledAlert color="warning" message="The username or password was incorrect! Please Try again."/>
@@ -106,8 +108,10 @@ class LogIn extends Component {
 						</Col>
 					</Row>
                     <div style={SPACER} />
-                    <Button>Log In</Button>
+                    <Button color="info" block>Log In</Button>
                 </Form>
+                <p/>New user? <a href="/signup">Sign up</a>
+                </div></center>
             </Container>
         )
     }

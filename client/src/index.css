@@ -1,5 +1,18 @@
 body {
   margin: 0;
-  padding: 0;
+  padding-top: 0;
   font-family: sans-serif;
+}
+
+a {
+    color: #17a2b8!important;
+}
+
+a:hover {
+    color:#37c7dd!important;
+    text-decoration:none!important;
+}
+
+::selection {
+  color: #17a2b8!important;
 }

@@ -152,6 +152,10 @@ class DriverHomePage extends Component {
     render() {
         return (
             <div>
+                <div style={SPACER} />
+                <h1>Welcome back!</h1>
+                To begin accepting rides or disable requests, update your status below.
+                <div style={SPACER} />
                 <Col>
                     <Dropdown isOpen={this.state.isOpen} toggle={this.toggle}>
 						<DropdownToggle caret>

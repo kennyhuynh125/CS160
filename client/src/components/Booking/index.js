@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Container, Button, Row, Col, Form } from 'reactstrap';
+import {Container, Button, Row, Col, Form, } from 'reactstrap';
 import axios from 'axios';
 import AirportDropdown from '../AirportDropdown';
 import StandaloneSearchBox from '../Reusable/Searchbox'
@@ -271,6 +271,7 @@ class Booking extends Component {
 	calculateFare = () => {
 		if(this.state.distance <= 2) this.setState({fare: 0,});
 		else this.setState({fare: 15 + 0.5 * this.state.distance + 0.25 * this.state.duration,});
+		//if rerouted subtract $10
 	}
   
 	// sets array of points along the route
@@ -319,22 +320,23 @@ class Booking extends Component {
 
     render() {
         return (
-            <Container>
-                <h1>Book a Ride</h1>
+            <Container >
+            <div style={{display:'flex'}}>
+            <div style={{width:'40%', textAlign:'center'}}>
+                <br/><h1 style={{textAlign:'left'}}>Book a Ride</h1>
 					<Row>
-						<Col xs="3">
-							<Button color="primary" onClick={this.handleToAirportChange}>To Airport</Button>
+						<Col xs="5">
+							<Button color="info" onClick={this.handleToAirportChange} block>To Airport</Button>
 						</Col>
-						<div style={SPACER} />
-						<Col xs="3">
-							<Button color="primary" onClick={this.handleFromAirportChange}>From Airport</Button>
+						<Col xs="5">
+							<Button color="info" onClick={this.handleFromAirportChange} block>From Airport</Button>
 						</Col>
 					</Row>
 					<div style={SPACER} />
 					{
 						this.state.toAirport && (
 							<div>
-								<h1>Select Destination Airport</h1>
+								<hr/><h2 style={{textAlign:'left'}}>Select Destination Airport</h2>
 								<AirportDropdown
 									labelText={this.state.dropDown2Text}
 									label1={'SFO'}
@@ -352,7 +354,7 @@ class Booking extends Component {
 					{
 						this.state.fromAirport && (
 							<div>
-								<h1>Select Airport to Depart From</h1>
+								<hr/><h2 style={{textAlign:'left'}}>Select Airport to Depart From</h2>
 								<AirportDropdown
 									labelText={this.state.dropDown1Text}
 									label1={'SFO'}
@@ -364,7 +366,7 @@ class Booking extends Component {
 									onClick={this.select1}
 								/>
 								<div style={SPACER} />
-								<h1>Select Destination Location</h1>
+								<h2 style={{textAlign:'left'}}>Select Destination Location</h2>
 								<StandaloneSearchBox onPlacesChanged={this.updateDestination}/>
 								<div style={SPACER} />
 							</div>
@@ -373,19 +375,10 @@ class Booking extends Component {
 					{
 						(this.state.toAirport || this.state.fromAirport) && (
 							<div>
-								<MapWithADirectionsRenderer 
-									latitude={this.state.start[0]} 
-									longitude={this.state.start[1]} 
-									destLatitude={this.state.dest[0]} 
-									destLongitude={this.state.dest[1]}
-									setPath={this.setPath}
-									driverLat={this.state.driverLatitude}
-									driverLng={this.state.driverLongitude}
-								/>
-								<div style={SPACER} />
 								{
 									this.state.duration !== -1 && this.state.distance !== -1 && (
-										<div>
+										<div style={{textAlign:'left'}}>
+										<hr/><h2 style={{textAlign:'left'}}>Ride Information</h2>
 											<p><b>Distance:</b> {this.state.distance} miles</p>
 											<p><b>Duration:</b> {this.state.duration} minutes</p>
 											<p><b>Fare:</b> ${this.state.fare}</p>
@@ -411,8 +404,9 @@ class Booking extends Component {
 												)
 											}
 											<Form>
-												<Button onClick={this.requestRide}>Request a Ride</Button>
+												<center><hr/><Button onClick={this.requestRide} color="info">Request a Ride</Button></center>
 											</Form>
+											<div style={SPACER} />
 										</div>
 									)
 								}
@@ -429,6 +423,26 @@ class Booking extends Component {
 							</div>
 						)
 					}
+				</div>
+				<div style={{width:'60%'}}>
+					{
+						(this.state.toAirport || this.state.fromAirport) && (
+							<div><div style={SPACER} />
+								<MapWithADirectionsRenderer 
+									latitude={this.state.start[0]} 
+									longitude={this.state.start[1]} 
+									destLatitude={this.state.dest[0]} 
+									destLongitude={this.state.dest[1]}
+									setPath={this.setPath}
+									driverLat={this.state.driverLatitude}
+									driverLng={this.state.driverLongitude}
+								/>
+								<div style={SPACER} />
+							</div>
+						)
+					}
+				</div>
+			</div>
             </Container>
         )
     }

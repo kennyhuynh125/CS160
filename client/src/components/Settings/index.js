@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import { Container, ButtonGroup, Button } from 'reactstrap';
-import Editable from 'react-x-editable';
-//requires you to install react-x-editable: npm install react-x-editable
+import { Container, Collapse, Button, CardBody, Card, Form, FormGroup, Label, Input, Col, Row, Table } from 'reactstrap';
+//import Editable from 'react-x-editable';
 
+//this is not fully functional - updated values are edited live in the table and the database is not updated
 export default class Settings extends Component {
     constructor(props) {
         super(props);
@@ -11,6 +11,7 @@ export default class Settings extends Component {
             lastName: 'Last Name',
             email: 'E-mail',
             phone: 'Phone',
+            collapseCard: false,
         }
     }
 
@@ -43,64 +44,70 @@ export default class Settings extends Component {
         })
     }
 
+    toggleCard = () => {
+        this.setState({ collapseCard: !this.state.collapseCard });
+    }
+
 
     render() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         return (
             <Container>
-                {
-                    isLoggedIn && (
-                        <div>
-                            <h2>Account Settings</h2>
-                            <h5>First Name:</h5>
-                            <Editable
-                                name="First Name"
-                                dataType="text"
-                                mode="inline"
-                                value={this.state.firstName}
-                                onUpdate={this.handleFirstNameChange}
-                            />
-                            <h5>Last Name:</h5>
-                            <Editable
-                                name="Last Name"
-                                dataType="text"
-                                mode="inline"
-                                value={this.state.lastName}
-                                onUpdate={this.handleLastNameChange}
-                            />
-                            <h5>E-mail:</h5>
-                            <Editable
-                                name="e-mail"
-                                dataType="text"
-                                mode="inline"
-                                value={this.state.email}
-                                onUpdate={this.handleEmailChange}
-                                validate={(value) => {
-                                    let validEmail = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@(([[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-                                    if(!validEmail.test(value)){
-                                        return 'Must input a valid e-mail address';
-                                    }
-                                }}
-                            /> 
-                            <h5>Phone Number:</h5>
-                            <Editable
-                                name="phone"
-                                dataType="text"
-                                mode="inline"
-                                value={this.state.phone}
-                                onUpdate={this.handlePhoneChange}
-                                validate={(value) => {
-                                    if(value % 1 !== 0 || value.length !== 10){
-                                        return 'Must input a valid number (no spaces, include area code)';
-                                    }
-                                }}
-                            />
-                            <h5>Allow Detours</h5>
-                            <ButtonGroup>
-                                <Button color="success">On</Button>
-                                <Button color="link">Off</Button>
-                            </ButtonGroup>
-                            <h5><a href="/">Ride History</a></h5>
+            {
+                isLoggedIn && (
+                <div>
+                    <br/><h2>Account Settings</h2>
+                    <br/><Table bordered>
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>E-mail</th>
+                                <th>Phone Number</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{this.state.firstName}</td>
+                                <td>{this.state.lastName}</td>
+                                <td>{this.state.email}</td>
+                                <td>{this.state.phone}</td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                <p/><Button onClick={this.toggleCard} style={{ marginBottom: '1rem' }} color="info">Update Information</Button>
+                                <Collapse isOpen={this.state.collapseCard}>
+                                <Card>
+                                    <CardBody>
+                                    <Form onSubmit={this.updateInfo}>
+                                        <Row form><Col md={3}>
+                                            <FormGroup onSubmit={this.updateInfo}>
+                                                <Label for="First Name">Name</Label>
+                                                <Input type="text" name="firstname" id="firstname" onChange={this.handleFirstNameChange} />
+                                            </FormGroup>
+                                        </Col><Col md={3}>
+                                            <FormGroup onSubmit={this.updateInfo}>
+                                                <Label for="Last Name">Last Name</Label>
+                                                <Input type="text" name="lastname" id="lastname" onChange={this.handleLastNameChange} />
+                                            </FormGroup>
+                                        </Col><Col md={3}>
+                                            <FormGroup onSubmit={this.updateInfo}>
+                                                <Label for="E-mail">E-mail</Label>
+                                                <Input type="email" name="email" id="email" onChange={this.handleEmailChange} />
+                                            </FormGroup>
+                                        </Col><Col md={3}>
+                                            <FormGroup onSubmit={this.updateInfo}>
+                                                <Label for="Phone Number">Phone Number</Label>
+                                                <Input type="text" name="number" id="number" onChange={this.handlePhoneChange} pattern="[0-9]{7,10}"/>
+                                            </FormGroup>
+                                        </Col></Row>
+                                        <Button color="info">Submit Updates</Button>
+                                    </Form>
+                                    </CardBody>
+                                </Card>
+                            </Collapse><hr/>
+
+                            <p/><h5><a href="/">Ride History</a></h5>
                             <h5><a href="/">Change Password</a></h5>
                         </div>
                     )
