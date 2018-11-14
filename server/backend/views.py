@@ -1,12 +1,15 @@
+from datetime import datetime
 from django.core import serializers
 from django.shortcuts import render
 from django.forms.models import model_to_dict
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import User, Payment, Driver
-from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer
+from .models import User, Payment, Driver, RideRequests
+from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer, RideRequestsSerializer
 from django.conf import settings
 
 import googlemaps
@@ -105,16 +108,18 @@ class AddDriver(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     def post(self, request):
-        driver = Driver.objects.get(id=int(request.data['userId']));
-        if driver:
+        user_id = request.data['userId']
+        try:
+            driver = Driver.objects.get(userId=user_id)
             return Response(False)
-        data_serializer = DriverSerializer(data=request.data)
-
-        if data_serializer.is_valid():
-            data_serializer.save()
-            return Response(True)
-        else:
-            return Response(False)
+        except Driver.DoesNotExist:          
+            data_serializer = DriverSerializer(data=request.data)
+            if data_serializer.is_valid():
+                data_serializer.save()
+                return Response(True)
+            else:
+                return Response(False)
+			
 
 
 class UpdateDriverLocation(generics.ListCreateAPIView):
@@ -124,13 +129,14 @@ class UpdateDriverLocation(generics.ListCreateAPIView):
         user_id = request.data['userId']
         latitude = request.data['latitude']
         longitude = request.data['longitude']
-        driver = Driver.objects.get(id=user_id)
+        driver = Driver.objects.get(userId=user_id)
         driver.currentLatitude = latitude
         driver.currentLongitude = longitude
         try:
             driver.save()
             return Response(True)
-        except:
+        except Exception as e:
+            print(e);
             return Response(False)
 
 
@@ -138,14 +144,15 @@ class UpdateDriverStatus(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     def post(self, request):
-        user_id = request.data['userId']
-        status = request.data['status']
-        driver = Driver.objects.get(id=user_id)
-        driver.status = status
         try:
+            user_id = request.data['userId']
+            status = request.data['status']
+            driver = Driver.objects.get(userId=user_id)
+            driver.status = status
             driver.save()
-            return Response(True)
-        except:
+            return Response(driver.status)
+        except Exception as e:
+            print(e)
             return Response(False)
 
 class UpdateFixedDriverStatus(generics.ListCreateAPIView):
@@ -177,4 +184,136 @@ class UpdateFixedDriverLocation(generics.ListCreateAPIView):
             driver.save()
             return Response(True)
         except:
-            return Response(False)   
+            return Response(False)
+
+
+class GetDriver(generics.ListCreateAPIView):
+    queryset = Driver.objects.all()
+    def post(self, request):
+        #Gets all drivers with "1" status in db
+        availableDrivers = Driver.objects.filter(status=1)
+         #Sets shortestTime to some really big amount to begin with
+        shortestTime = 1800
+        closestDriver = None
+        for driver in availableDrivers:
+            time = getDuration(request.data['latitude'], request.data['longitude'], driver.currentLatitude, driver.currentLongitude)
+            if (time < shortestTime):
+                shortestTime = time
+                closestDriver = driver
+        json_data=[]
+        json_obj={}
+        json_obj['driverLatitude'] = closestDriver.currentLatitude
+        json_obj['driverLongitude'] = closestDriver.currentLongitude
+        json_obj['duration'] = int(round(shortestTime / 60))
+        json_obj['driverUserId'] = closestDriver.userId
+        json_obj['driverId'] = closestDriver.id
+        json_data.append(json_obj)
+        return Response(json_data)
+
+
+class AddRequest(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        data_serializer = RideRequestsSerializer(data=request.data)
+        if data_serializer.is_valid():
+            instance = data_serializer.save()
+            return Response(instance.id)
+        else:
+            return Response(False)
+
+
+class GetRequestByDriverUserId(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        try:
+            currentRequest = RideRequests.objects.get(userId=request.data['driverUserId'], accepted=0)
+            json_data = []
+            json_obj = {}
+            if request:
+                json_obj['requestId'] = currentRequest.id
+                json_obj['driverId'] = currentRequest.driverId
+                json_obj['userId'] = currentRequest.userId
+                json_obj['customerLatitude'] = currentRequest.customerLatitude
+                json_obj['customerLongitude'] = currentRequest.customerLongitude
+                json_obj['destinationLatitude'] = currentRequest.destinationLatitude
+                json_obj['destinationLongitude'] = currentRequest.destinationLongitude
+                json_obj['accepted'] = 0 if currentRequest.accepted is None else currentRequest.accepted
+                json_data.append(json_obj)
+            return Response(json_data)
+        except ObjectDoesNotExist:
+            return Response([])
+
+
+class GetRequestByRequestId(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        try:
+            currentRequest = RideRequests.objects.get(id=request.data['requestId'])
+            json_data = []
+            json_obj = {}
+            if request:
+                json_obj['requestId'] = currentRequest.id
+                json_obj['driverId'] = currentRequest.driverId
+                json_obj['userId'] = currentRequest.userId
+                json_obj['customerLatitude'] = currentRequest.customerLatitude
+                json_obj['customerLongitude'] = currentRequest.customerLongitude
+                json_obj['destinationLatitude'] = currentRequest.destinationLatitude
+                json_obj['destinationLongitude'] = currentRequest.destinationLongitude
+                json_obj['accepted'] = 0 if currentRequest.accepted is None else currentRequest.accepted
+                json_data.append(json_obj)
+            return Response(json_data)
+        except ObjectDoesNotExist:
+            return Response([])
+
+
+class UpdateRequest(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        accepted = request.data['accepted'];
+        currentRequest = RideRequests.objects.get(userId=request.data['driverUserId'], accepted=0)
+        currentRequest.accepted = accepted
+        try:
+            currentRequest.save()
+            return Response(accepted)
+        except Exception as e:
+            print(e)
+            return Response(False)
+            
+
+class GetDurationAndDistance(generics.ListCreateAPIView):
+    queryset = Driver.objects.all()
+    def post(self, request):
+        starting_latitude = request.data['startLat']
+        starting_longitude = request.data['startLong']
+        destination_latitude = request.data['destLat']
+        destination_longitude = request.data['destLong']
+        json_data = []
+        json_obj = {}
+        duration = getDuration(starting_latitude, starting_longitude, destination_latitude, destination_longitude)
+        distance = getDistance(starting_latitude, starting_longitude, destination_latitude, destination_longitude)
+        json_obj['duration'] = int(round(duration / 60)) # since it comes in seconds
+        json_obj['distance'] = round(distance / 1610, 1)
+        json_data.append(json_obj)
+        return Response(json_data)
+
+		
+
+def getDuration(latitude, longitude, destLatitude, destLongitude):
+    firstLocation = str(latitude) + ", " + str(longitude)
+    destLocation = str(destLatitude) + ", " + str(destLongitude)
+    now = datetime.now()
+    directions_result = gmaps.directions(firstLocation,
+                         destLocation,
+                         mode="driving",
+                         departure_time=now)
+    return directions_result[0]['legs'][0]['duration_in_traffic']['value']
+
+def getDistance(latitude, longitude, destLatitude, destLongitude):
+    firstLocation = str(latitude) + ", " + str(longitude)
+    destLocation = str(destLatitude) + ", " + str(destLongitude)
+    now = datetime.now()
+    directions_result = gmaps.directions(firstLocation,
+                         destLocation,
+                         mode="driving",
+                         departure_time=now)
+    return directions_result[0]['legs'][0]['distance']['value']
