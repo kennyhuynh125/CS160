@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Container, Button, Form, FormGroup, Label, Input, Row, Col, Alert } from 'reactstrap';
+import {Container, Button, Form } from 'reactstrap';
 import axios from 'axios';
 import { StyledInput, StyledAlert } from '../Reusable'
 import { SPACER } from '../../constants';

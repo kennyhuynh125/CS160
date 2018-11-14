@@ -14,14 +14,14 @@ class Home extends Component {
             latitude: 0,
             longitude: 0,
             location: [],
-            isCustomer: null,
+            isDriver: null,
         }
     }
 
     componentDidMount() {
-        const isCustomer = sessionStorage.getItem('customer');
+        const isDriver = sessionStorage.getItem('driver');
         this.setState({
-            isCustomer: (isCustomer === 'true') ? true : (isCustomer === 'false') ? false : null,
+            isDriver: (isDriver === 'true') ? true : (isDriver === 'false') ? false : null,
         });
     }
     getGeoLocation = () => {
@@ -56,12 +56,12 @@ class Home extends Component {
                 <center>
                     <div>
                         {
-                            this.state.isCustomer === true && (
+                            this.state.isDriver === false && (
                                 <CustomerHomePage />
                             )
                         }
                         {
-                            this.state.isCustomer === false && (
+                            this.state.isDriver === true && (
                                 <DriverHomePage />
                             )
                         }

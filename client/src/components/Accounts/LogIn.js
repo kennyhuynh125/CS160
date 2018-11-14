@@ -53,17 +53,17 @@ class LogIn extends Component {
         .then((response) => { // logs user
             if (response.data) {
                 sessionStorage.setItem('isLoggedIn', true);
-                sessionStorage.setItem('driver', !this.state.isCustomer);
-                sessionStorage.setItem('customer', this.state.isCustomer);
-                sessionStorage.setItem('userId', response.data);
-                userId = sessionStorage.getItem('userId');
-                isDriver = sessionStorage.getItem('driver');
+				isDriver = !this.state.isCustomer;
+				userId = response.data;
+                sessionStorage.setItem('driver', isDriver);
+                sessionStorage.setItem('userId', userId);
                 const geolocation = navigator.geolocation;
                 if (geolocation) {
                     geolocation.getCurrentPosition((position) => {
                         const latitude = position.coords.latitude;
                         const longitude = position.coords.longitude;
-                        return addDriver(userId, isDriver, 1, latitude, longitude);
+						const a = addDriver(userId, isDriver, 0, latitude, longitude);
+                        return a;
                     });
                 }
 				// push to home page on successful login

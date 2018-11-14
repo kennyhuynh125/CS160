@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
-import { Button, Col, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledAlert } from 'reactstrap';
+import { Container, Button, Col, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledAlert } from 'reactstrap';
+import { RideRequestInformation } from '../../Route';
+import { MapWithADirectionsRenderer } from '../../Reusable';
+import axios from 'axios';
 import {
     updateDriverStatus,
     updateDriverLocation,
+    updateRequest,
 } from '../../../helper';
 import {
     SPACER
@@ -20,23 +24,65 @@ class DriverHomePage extends Component {
             selectedStatus: null,
             hasUpdatedStatus: false,
             hasUpdatedLocation: false,
+			// DriverStates: offline, waiting, requested, driving, rerouted
+			driverState: 'offline',
             newLatitude: 0,
             newLongitude: 0,
+            driverId: '',
+            foundRider: false,
+            interval: null,
+			reroute: null,
+            rideRequestInfo: {},
+            hasAccepted: null,
         }
+    }
+    checkForNewCustomers = (userId) => {
+        console.log(userId);
+       axios.post('/api/getdriverrequests', {
+           driverUserId: userId,
+       })
+       .then((response) => {
+           if (response.data.length > 0) {
+               const rideRequestData = response.data[0];
+               console.log(rideRequestData);
+               if (rideRequestData.accepted === 0) {
+                    this.setState({
+                        foundRider: true,
+                        rideRequestInfo: rideRequestData,
+                    }, () => {
+						//Going to need to determine if you are already driing
+                        clearInterval(this.state.interval);
+                    });
+               }
+           } else {
+               console.log('No new requests for this driver');
+           }
+       })
+       .catch((error) => {
+           console.log(error);
+       });
     }
 
     // makes request to api to update status
     updateStatus = () => {
+				alert('status update');
         const userId = sessionStorage.getItem('userId');
         const isDriver = sessionStorage.getItem('driver');
         const newStatus = this.state.selectedStatus;
         updateDriverStatus(userId, isDriver, newStatus, () => {
+            let interval;
+            if (newStatus === 0) {
+                clearInterval(this.state.interval);
+            } else if (newStatus === 1) {
+                interval = setInterval(() => { this.checkForNewCustomers(userId) }, 10000); 
+            }
             this.setState({
                 hasUpdatedStatus: true,
+                interval: interval,
             });
         })
+		
     }
-
     // makes request to api to update location
     updateLocation = () => {
         const geolocation = navigator.geolocation;
@@ -46,12 +92,14 @@ class DriverHomePage extends Component {
                 const longitude = position.coords.longitude;
                 const userId = sessionStorage.getItem('userId');
                 const isDriver = sessionStorage.getItem('driver');
-                updateDriverLocation(userId, isDriver, latitude, longitude, () => {
-                    this.setState({
-                        hasUpdatedLocation: true,
-                        newLatitude: latitude,
-                        newLongitude: longitude,
-                    });
+                updateDriverLocation(userId, isDriver, latitude, longitude, (response) => {
+                    if (response === true) {
+                        this.setState({
+                            hasUpdatedLocation: true,
+                            newLatitude: latitude,
+                            newLongitude: longitude,
+                        });
+                    }
                 });
             });
         }
@@ -70,6 +118,42 @@ class DriverHomePage extends Component {
             selectedStatus: parseInt(e.target.value, 10),
             hasUpdatedStatus: false,
         })
+    }
+
+    // accepts customer request, notify customer that driver is coming.
+    accept = () => {
+        // set accepted column in db to 1 and drive
+        const userId = sessionStorage.getItem('userId');
+        updateRequest(userId, 1, () => {
+            // call updateStatus here
+            this.setState({
+                hasAccepted: true,
+                foundRider: false,
+            }, () => {
+                let interval = setInterval(() => { this.updateLocation(); setTimeout(() => {this.checkForNewCustomers}, 30000);}, 60000);
+                this.setState({
+                    interval: interval,
+                });
+            });
+        });
+
+    }
+	
+    // if user declines ride request, notify customer and start looking for rides again.
+    decline = () => {
+        // set accepted column in db to 0
+        const userId = sessionStorage.getItem('userId');
+        updateRequest(userId, -1, () => {
+            this.setState({
+                hasAcepted: false,
+                foundRider: false,
+            }, () => {
+                let interval = setInterval(() => { this.checkForNewCustomers }, 5000);
+                this.setState({
+                    interval: interval,
+                });
+            });
+        });
     }
 
     render() {
@@ -113,6 +197,38 @@ class DriverHomePage extends Component {
                         )
                     }
                 </Col>
+                {
+                    this.state.foundRider && (
+                        <div>
+                            <p>A ride has been requested.</p>
+                            <RideRequestInformation
+                                customerLat={this.state.rideRequestInfo.customerLatitude}
+                                customerLong={this.state.rideRequestInfo.customerLongitude}
+                                destinationLat={this.state.rideRequestInfo.destinationLatitude}
+                                destinationLong={this.state.rideRequestInfo.destinationLongitude}
+                                accept={this.accept}
+                                decline={this.decline}
+                            />
+                        </div>
+                    ) || (
+						this.state.hasAccepted && (
+							<Container>
+								<UncontrolledAlert color="success">Ride request accepted. Customer has been notified.</UncontrolledAlert>
+								<MapWithADirectionsRenderer 
+									latitude={this.state.start[0]} 
+									longitude={this.state.start[1]} 
+									destLatitude={this.state.dest[0]} 
+									destLongitude={this.state.dest[1]}
+									setPath={this.setPath}
+									driverLat={this.state.driverLatitude}
+									driverLng={this.state.driverLongitude}
+								/>
+							</Container>
+						) || (
+							<UncontrolledAlert color="danger">Ride request declined. Customer has been notified.</UncontrolledAlert>
+						)
+					)
+                }
             </div>
         )
     }
