@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 from rest_framework import generics
 from rest_framework.response import Response
@@ -119,7 +120,7 @@ class AddDriver(generics.ListCreateAPIView):
                 return Response(True)
             else:
                 return Response(False)
-			
+            
 
 
 class UpdateDriverLocation(generics.ListCreateAPIView):
@@ -210,18 +211,44 @@ class GetDriver(generics.ListCreateAPIView):
         json_data.append(json_obj)
         return Response(json_data)
 
+# Query proceedure:
+# Input: Customer Location, Destination, customerID
+# Search driver table for closest driver
+# Driver valid statuses: 1 = idle 2=driving but can be rerouted once 3=do not reroute
+# Notify driver? I believe their client auto scans so the request should be picked up if it is theirs.
+# Respond to customer
 
 class AddRequest(generics.ListCreateAPIView):
     queryset = RideRequests.objects.all()
     def post(self, request):
+    #fixedDrivers is not functional
+        if request.data['fixedDriver'] == True:
+            validDrivers = Driver.objects.filter(Q(status=1)|Q(status=2)&Q(fixedDriverId__isnull=False))
+        else:
+            validDrivers = Driver.objects.filter(Q(status=1)|Q(status=2)&Q(fixedDriverId__isnull=True))
+        shortestTime = 1800
+        closestDriver = None
+        for driver in validDrivers:
+            time = getDuration(request.data['customerLatitude'], request.data['customerLongitude'], driver.currentLatitude, driver.currentLongitude )
+            if (time < shortestTime):
+                shortestTime = time
+                closestDriver = driver
+        if closestDriver != None:
+            request.data['driverId'] = closestDriver.id
+            request.data['driverLatitude'] = closestDriver.currentLatitude
+            request.data['driverLongitude'] = closestDriver.currentLongitude
         data_serializer = RideRequestsSerializer(data=request.data)
         if data_serializer.is_valid():
             instance = data_serializer.save()
-            return Response(instance.id)
+            json_data = []
+            json_obj = {}
+            json_obj['id'] = instance.id
+            json_obj['duration'] = time
+            json_data.append(json_obj)
+            return Response(json_data)
         else:
             return Response(False)
-
-
+            
 class GetRequestByDriverUserId(generics.ListCreateAPIView):
     queryset = RideRequests.objects.all()
     def post(self, request):
@@ -264,16 +291,22 @@ class GetRequestByRequestId(generics.ListCreateAPIView):
             return Response(json_data)
         except ObjectDoesNotExist:
             return Response([])
-
-
+            
 class UpdateRequest(generics.ListCreateAPIView):
     queryset = RideRequests.objects.all()
     def post(self, request):
         accepted = request.data['accepted'];
         currentRequest = RideRequests.objects.get(userId=request.data['driverUserId'], accepted=0)
         currentRequest.accepted = accepted
+        # Status 0 = not available 1=idle 2=driving 3=already rerouted
+        # valid cases: idle -> driving, driving-> already rerouted
+        if accepted:
+            driverUpdate = Driver.objects.get(userID=request.data['driverUserId'])
+            driverUpdate.status = driverUpdate.status + 1
         try:
             currentRequest.save()
+            if accepted:
+                driverUpdate.save()
             return Response(accepted)
         except Exception as e:
             print(e)
@@ -296,7 +329,7 @@ class GetDurationAndDistance(generics.ListCreateAPIView):
         json_data.append(json_obj)
         return Response(json_data)
 
-		
+        
 
 def getDuration(latitude, longitude, destLatitude, destLongitude):
     firstLocation = str(latitude) + ", " + str(longitude)
