@@ -212,7 +212,8 @@ class DriverHomePage extends Component {
                 {
                     !this.state.foundRider && this.state.hasAccepted && (
                         <UncontrolledAlert color="success">
-                            Ride request accepted. Customer has been notified.
+                            <p>Ride request accepted. Customer has been notified.</p>
+                            <p>Status has been set to DRIVING.</p>
                         </UncontrolledAlert>
                     )
                 }
