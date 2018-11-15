@@ -42,6 +42,25 @@ export const updateDriverStatus = (userId, isDriver, newStatus, callback) => {
     }
 };
 
+export const updateFixedDriverStatus = (driverId, newStatus, callback) => {
+    if (driverId !== null) {
+        axios.post('/api/updatefixedstatus', {
+            fixedDriverId: driverId,
+            status: newStatus
+        })
+        .then((response) => {
+            console.log(response);
+            console.log('Status updated.');
+            if (callback) {
+                callback();
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
+};
+
 // make api call to update driver's latitude and longitude
 export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude, callback) => {
     if (isDriver === 'true' && userId !== null) {
@@ -54,7 +73,7 @@ export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude
             console.log(response);
             console.log('Location updated');
             if(callback) {
-                callback();
+                callback(response);
             }
         })
         .catch((error) => {
@@ -62,6 +81,27 @@ export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude
         });
     }
 };
+
+export const updateFixedDriverLocation = (driverId, newLatitude, newLongitude, callback) => {
+    console.log(driverId);
+    if (driverId !== null) {
+        axios.post('/api/updatefixedlocation', {
+            fixedDriverId: driverId,
+            latitude: newLatitude,
+            longitude: newLongitude,
+        })
+        .then((response) => {
+            console.log(response);
+            console.log('Location updated');
+            if(callback) {
+                callback(response);
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
+}
 
 // make api call to update request decision.
 export const updateRequest = (driverUserId, accepted, callback) => {

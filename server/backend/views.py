@@ -158,7 +158,7 @@ class UpdateFixedDriverStatus(generics.ListCreateAPIView):
     def post(self, request):
         driver_id = request.data['fixedDriverId']
         status = request.data['status']
-        driver = Driver.objects.get(fixedDriverId=driver_id)
+        driver = Driver.objects.get(id=driver_id)
         driver.status = status
         try:
             driver.save()
@@ -174,7 +174,7 @@ class UpdateFixedDriverLocation(generics.ListCreateAPIView):
         driver_id = request.data['fixedDriverId']
         latitude = request.data['latitude']
         longitude = request.data['longitude']
-        driver = Driver.objects.get(fixedDriverId=driver_id)
+        driver = Driver.objects.get(id=driver_id)
         driver.currentLatitude = latitude
         driver.currentLongitude = longitude
         try:

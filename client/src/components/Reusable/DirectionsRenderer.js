@@ -15,7 +15,7 @@ const MapWithADirectionsRenderer = compose(
         googleMapURL: "https://maps.googleapis.com/maps/api/js?key=AIzaSyDkOgKW9d-YxAC_8kar8EZ-aL90qazdSNc&v=3.exp&libraries=geometry,drawing,places",
         loadingElement: <div style={{ height: `100%` }} />,
         containerElement: <div style={{ height: `400px` }} />,
-        mapElement: <div style={{ height: `650px` }} />,
+        mapElement: <div style={{ height: `100%` }} />,
     }),
     withScriptjs, withGoogleMap,
     lifecycle({

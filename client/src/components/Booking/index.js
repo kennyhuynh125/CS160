@@ -4,12 +4,19 @@ import axios from 'axios';
 import AirportDropdown from '../AirportDropdown';
 import StandaloneSearchBox from '../Reusable/Searchbox'
 import MapWithADirectionsRenderer from '../Reusable/DirectionsRenderer'
+import BookingPayment from '../BookingPayment';
 import {
 	SFO,
 	OAK,
 	SJO,
 	SPACER
 } from '../../constants';
+import {
+	updateDriverLocation,
+	updateDriverStatus,
+	updateFixedDriverLocation,
+	updateFixedDriverStatus,
+} from '../../helper';
 
 /*
 This component is the booking page, users can select or input locations
@@ -19,7 +26,6 @@ class Booking extends Component {
 	
     constructor(props) {
         super(props);
-		// This is really ugly
         this.state = {
             start: [0,0],
             dest: [0,0],
@@ -49,6 +55,9 @@ class Booking extends Component {
 			driverToCustomer: false,
 			initialStart: [],
 			initialDest: [],
+			updateDriverInterval: null,
+			isFixedDriver: false,
+			rideFinished: false,
         }
 	}
 	
@@ -198,13 +207,17 @@ class Booking extends Component {
 			const initialDest = [this.state.dest[0], this.state.dest[1]];
 			const dest = [this.state.start[0], this.state.start[1]];
 			const start = [this.state.driverLatitude, this.state.driverLongitude];
-			this.setState({
-				driverToCustomer: true,
-				start: start,
-				dest: dest,
-				initialStart: initialStart,
-				initialDest: initialDest,
-				interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 150),
+			updateFixedDriverStatus(this.state.driverId, 2, () => {
+				this.setState({
+					driverToCustomer: true,
+					start: start,
+					dest: dest,
+					initialStart: initialStart,
+					initialDest: initialDest,
+					interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 250),
+					updateDriverInterval: setInterval(() => { this.updateLocation(false) }, 1000),
+					isFixedDriver: true,
+				});
 			});
 		} else {
 			// driver is a user
@@ -246,12 +259,24 @@ class Booking extends Component {
 		.then((response) => {
 			const request = response.data[0];
 			if (request.accepted === 1) {
-				this.setState({
-					driverHasAccepted: true,
-					driverToCustomer: true,
-					isWaiting: false,
-					interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 150),
-				})
+				clearInterval(this.state.interval);
+				const initialStart = [this.state.start[0], this.state.start[1]];
+				const initialDest = [this.state.dest[0], this.state.dest[1]];
+				const dest = [this.state.start[0], this.state.start[1]];
+				const start = [this.state.driverLatitude, this.state.driverLongitude];
+				updateDriverStatus(this.state.driverUserId, 'true', 2, () => {
+					this.setState({
+						driverHasAccepted: true,
+						driverToCustomer: true,
+						isWaiting: false,
+						start: start,
+						dest: dest,
+						initialStart: initialStart,
+						initialDest: initialDest,
+						interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 250),
+						updateDriverInterval: setInterval(() => { this.updateLocation(true)}, 1000),
+					})
+				});
 			} else if(request.accepted === -1) {
 				this.setState({
 					driverHasAccepted: false,
@@ -259,6 +284,7 @@ class Booking extends Component {
 					isWaiting: false,
 				}, () => {
 					clearInterval(this.state.interval);
+					clearInterval(this.state.updateDriverInterval);
 				});
 			}
 		})
@@ -289,6 +315,7 @@ class Booking extends Component {
 
 	// walks trough the path 
 	walkThroughPath = (pointIndex) => {
+		// driver to customer
 		if (pointIndex >= this.state.point.length && this.state.driverToCustomer) {
 			alert('Driver has arrived.');
 			this.setState({
@@ -298,17 +325,24 @@ class Booking extends Component {
 				dest: this.state.initialDest,
 			});
 		} else if (pointIndex >= this.state.point.length && this.state.driverToCustomer === false) {
+			// if driver reaches destination, update status/location of driver and clear intervals
+			const destination = Object.assign([], this.state.dest);
 			alert('You have arrived at your destination.');
 			this.setState({
-				pointIndex: 0,
-				start: [0,0],
-				dest: [0,0],
-				initialStart: [],
-				initialDest: [],
+				rideFinished: true,
 			}, () => {
+				if (this.state.isFixedDriver === true) {
+					updateFixedDriverLocation(this.state.driverId, destination[0], destination[1]);
+					updateFixedDriverStatus(this.state.driverId, 1);
+				} else {
+					updateDriverLocation(this.state.driverUserId, 'true', destination[0], destination[1]);
+					updateDriverStatus(this.state.driverUserId, 'true', 1);
+				}
 				clearInterval(this.state.interval);
+				clearInterval(this.state.updateDriverInterval);
 			})
 		} else {
+			// walk through path until we get to customer or destination
 			const point = this.state.point[pointIndex];
 			this.setState({
 				pointIndex: this.state.pointIndex + 1,
@@ -318,131 +352,153 @@ class Booking extends Component {
 		}
 	}
 
+	// updates driver's location to the current coordinate
+	updateLocation = (isUser) => {
+		if (this.state.pointIndex < this.state.point.length) {
+			const coordinate = this.state.point[this.state.pointIndex];
+			if (isUser) {
+				updateDriverLocation(this.state.driverUserId, 'true', coordinate[0], coordinate[1], () => {
+					console.log('driver location updated.');
+				})
+			} else {
+				updateFixedDriverLocation(this.state.driverId, coordinate[0], coordinate[1], () => {
+					console.log('driver location updated.');
+				});
+			}
+		}
+	}
+
     render() {
         return (
-            <Container >
-            <div style={{display:'flex'}}>
-            <div style={{width:'40%', textAlign:'center'}}>
-                <br/><h1 style={{textAlign:'left'}}>Book a Ride</h1>
-					<Row>
-						<Col xs="5">
-							<Button color="info" onClick={this.handleToAirportChange} block>To Airport</Button>
-						</Col>
-						<Col xs="5">
-							<Button color="info" onClick={this.handleFromAirportChange} block>From Airport</Button>
-						</Col>
-					</Row>
-					<div style={SPACER} />
-					{
-						this.state.toAirport && (
-							<div>
-								<hr/><h2 style={{textAlign:'left'}}>Select Destination Airport</h2>
-								<AirportDropdown
-									labelText={this.state.dropDown2Text}
-									label1={'SFO'}
-									label2={'OAK'}
-									label3={'SJO'}
-									loc1={SFO}
-									loc2={OAK}
-									loc3={SJO}
-									onClick={this.select2}
-								/>
-								<div style={SPACER} />
-							</div>
-						)
-					}
-					{
-						this.state.fromAirport && (
-							<div>
-								<hr/><h2 style={{textAlign:'left'}}>Select Airport to Depart From</h2>
-								<AirportDropdown
-									labelText={this.state.dropDown1Text}
-									label1={'SFO'}
-									label2={'OAK'}
-									label3={'SJO'}
-									loc1={SFO}
-									loc2={OAK}
-									loc3={SJO}
-									onClick={this.select1}
-								/>
-								<div style={SPACER} />
-								<h2 style={{textAlign:'left'}}>Select Destination Location</h2>
-								<StandaloneSearchBox onPlacesChanged={this.updateDestination}/>
-								<div style={SPACER} />
-							</div>
-						)
-					}
-					{
-						(this.state.toAirport || this.state.fromAirport) && (
-							<div>
-								{
-									this.state.duration !== -1 && this.state.distance !== -1 && (
-										<div style={{textAlign:'left'}}>
-										<hr/><h2 style={{textAlign:'left'}}>Ride Information</h2>
-											<p><b>Distance:</b> {this.state.distance} miles</p>
-											<p><b>Duration:</b> {this.state.duration} minutes</p>
-											<p><b>Fare:</b> ${this.state.fare}</p>
-										</div>
-									)
-								}
-								{
-									this.state.nearestDriver !== -1 && this.state.nearestDriver <= 30 && (
-										<p>Nearest driver is {this.state.nearestDriver} minutes away.</p>
-									)
-								}
-								{
-									this.state.nearestDriver !== -1 && this.state.nearestDriver > 30 && (
-										<p>There are no drivers in your area. Please try again later.</p>
-									)
-								}
-								{
-									!this.state.isWaiting && this.state.driverHasAccepted !== true && (
+            <Container>
+				{
+					!this.state.rideFinished && (
+						<div style={{ textAlign:'center'}}>
+						<br/><h1>Book a Ride</h1>
+							<Row>
+								<Col xs="6">
+									<Button color="info" onClick={this.handleToAirportChange} block>To Airport</Button>
+								</Col>
+								<Col xs="6">
+									<Button color="info" onClick={this.handleFromAirportChange} block>From Airport</Button>
+								</Col>
+							</Row>
+							<div style={SPACER} />
+							{
+								this.state.toAirport && (
+									<div>
+										<hr/><h2>Select Destination Airport</h2>
+										<AirportDropdown
+											labelText={this.state.dropDown2Text}
+											label1={'SFO'}
+											label2={'OAK'}
+											label3={'SJO'}
+											loc1={SFO}
+											loc2={OAK}
+											loc3={SJO}
+											onClick={this.select2}
+										/>
+										<div style={SPACER} />
+									</div>
+								)
+							}
+							{
+								this.state.fromAirport && (
+									<div>
+										<hr/><h2>Select Airport to Depart From</h2>
+										<AirportDropdown
+											labelText={this.state.dropDown1Text}
+											label1={'SFO'}
+											label2={'OAK'}
+											label3={'SJO'}
+											loc1={SFO}
+											loc2={OAK}
+											loc3={SJO}
+											onClick={this.select1}
+										/>
+										<div style={SPACER} />
+										<h2>Select Destination Location</h2>
+										<StandaloneSearchBox onPlacesChanged={this.updateDestination}/>
+										<div style={SPACER} />
+									</div>
+								)
+							}
+							{
+								(this.state.toAirport || this.state.fromAirport) && (
+									<div>
 										<div>
-											{
-												this.state.driverHasAccepted === false && (
-													<p>Driver declined. Please try again.</p>
-												)
-											}
-											<Form>
-												<center><hr/><Button onClick={this.requestRide} color="info">Request a Ride</Button></center>
-											</Form>
-											<div style={SPACER} />
+											<MapWithADirectionsRenderer 
+												latitude={this.state.start[0]} 
+												longitude={this.state.start[1]} 
+												destLatitude={this.state.dest[0]} 
+												destLongitude={this.state.dest[1]}
+												setPath={this.setPath}
+												driverLat={this.state.driverLatitude}
+												driverLng={this.state.driverLongitude}
+											/>
 										</div>
-									)
-								}
-								{
-									this.state.isWaiting && (
-										<p>Notifying driver...</p>
-									)
-								}
-								{
-									!this.state.isWaiting && this.state.driverHasAccepted && (
-										<p>Driver has accepted. Driver is now on its way.</p>
-									)
-								}
-							</div>
-						)
-					}
-				</div>
-				<div style={{width:'60%'}}>
-					{
-						(this.state.toAirport || this.state.fromAirport) && (
-							<div><div style={SPACER} />
-								<MapWithADirectionsRenderer 
-									latitude={this.state.start[0]} 
-									longitude={this.state.start[1]} 
-									destLatitude={this.state.dest[0]} 
-									destLongitude={this.state.dest[1]}
-									setPath={this.setPath}
-									driverLat={this.state.driverLatitude}
-									driverLng={this.state.driverLongitude}
-								/>
-								<div style={SPACER} />
-							</div>
-						)
-					}
-				</div>
-			</div>
+										<div style={SPACER} />
+										{
+											this.state.duration !== -1 && this.state.distance !== -1 && (
+												<div>
+													<h2>Ride Information</h2>
+													<p><b>Distance:</b> {this.state.distance} miles</p>
+													<p><b>Duration:</b> {this.state.duration} minutes</p>
+													<p><b>Fare:</b> ${this.state.fare}</p>
+												</div>
+											)
+										}
+										{
+											this.state.nearestDriver !== -1 && this.state.nearestDriver <= 30 && (
+												<p>Nearest driver is {this.state.nearestDriver} minutes away.</p>
+											)
+										}
+										{
+											this.state.nearestDriver !== -1 && this.state.nearestDriver > 30 && (
+												<p>There are no drivers in your area. Please try again later.</p>
+											)
+										}
+										{
+											!this.state.isWaiting && this.state.driverHasAccepted !== true && (
+												<div>
+													{
+														this.state.driverHasAccepted === false && (
+															<p>Driver declined. Please try again.</p>
+														)
+													}
+													<Form>
+														<center><hr/><Button onClick={this.requestRide} color="info">Request a Ride</Button></center>
+													</Form>
+													<div style={SPACER} />
+												</div>
+											)
+										}
+										{
+											this.state.isWaiting && (
+												<p>Notifying driver...</p>
+											)
+										}
+										{
+											!this.state.isWaiting && this.state.driverHasAccepted && (
+												<p>Driver has accepted. Driver is now on its way.</p>
+											)
+										}
+									</div>
+								)
+							}
+						</div>
+					)
+				}
+				{
+					this.state.rideFinished && (
+						<BookingPayment
+							distance={this.state.distance}
+							duration={this.state.duration}
+							destination={`${this.state.dest[0]} / ${this.state.dest[1]}`}
+							totalCost={this.state.fare}
+						/>
+					)
+				}
             </Container>
         )
     }

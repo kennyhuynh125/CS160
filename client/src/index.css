@@ -16,3 +16,7 @@ a:hover {
 ::selection {
   color: #17a2b8!important;
 }
+
+img {
+  width: 100%;
+}
