@@ -186,6 +186,7 @@ class UpdateFixedDriverLocation(generics.ListCreateAPIView):
 
 class GetDriver(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
+    serializer_class = DriverSerializer
     def post(self, request):
         #Gets all drivers with "1" status in db
         availableDrivers = Driver.objects.filter(status=1)
@@ -210,6 +211,7 @@ class GetDriver(generics.ListCreateAPIView):
 
 class AddRequest(generics.ListCreateAPIView):
     queryset = RideRequests.objects.all()
+    serializer_class = RideRequestsSerializer
     def post(self, request):
         data_serializer = RideRequestsSerializer(data=request.data)
         if data_serializer.is_valid():
@@ -221,6 +223,7 @@ class AddRequest(generics.ListCreateAPIView):
 
 class GetRequestByDriverUserId(generics.ListCreateAPIView):
     queryset = RideRequests.objects.all()
+    serializer_class = RideRequestsSerializer
     def post(self, request):
         try:
             currentRequest = RideRequests.objects.get(userId=request.data['driverUserId'], accepted=0)
@@ -243,6 +246,7 @@ class GetRequestByDriverUserId(generics.ListCreateAPIView):
 
 class GetRequestByRequestId(generics.ListCreateAPIView):
     queryset = RideRequests.objects.all()
+    serializer_class = RideRequestsSerializer
     def post(self, request):
         try:
             currentRequest = RideRequests.objects.get(id=request.data['requestId'])
@@ -265,6 +269,7 @@ class GetRequestByRequestId(generics.ListCreateAPIView):
 
 class UpdateRequest(generics.ListCreateAPIView):
     queryset = RideRequests.objects.all()
+    serializer_class = RideRequestsSerializer
     def post(self, request):
         accepted = request.data['accepted'];
         currentRequest = RideRequests.objects.get(userId=request.data['driverUserId'], accepted=0)
@@ -279,6 +284,7 @@ class UpdateRequest(generics.ListCreateAPIView):
 
 class GetDurationAndDistance(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
+    serializer_class = DriverSerializer
     def post(self, request):
         starting_latitude = request.data['startLat']
         starting_longitude = request.data['startLong']
