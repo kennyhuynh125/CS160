@@ -17,7 +17,7 @@ import os
 
 
 GOOGLE_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
-gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
+gmaps = googlemaps.Client(key='AIzaSyDkOgKW9d-YxAC_8kar8EZ-aL90qazdSNc')
 
 # gets all the users in our database and sends it as a Response
 class ListUser(generics.ListAPIView):
