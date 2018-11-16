@@ -26,7 +26,7 @@ SECRET_KEY = '-e0#(06#(ch*=izf&*82ccg$8x8n&zbpx7b*!a84_v-ppt03jc'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['letitfly160.herokuapp.com', '127.0.0.1:8000']
+ALLOWED_HOSTS = ['letitfly160.herokuapp.com', '127.0.0.1:8000', '127.0.0.1']
 
 
 # Application definition

@@ -12,8 +12,11 @@ from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer,
 from django.conf import settings
 
 import googlemaps
+import os
 
-GOOGLE_API_KEY = getattr(settings, 'API_KEY', None)
+
+
+GOOGLE_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
 gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
 
 # gets all the users in our database and sends it as a Response
@@ -28,9 +31,6 @@ class ListUser(generics.ListAPIView):
         for item in data:
             json_obj = {}
             json_obj['id'] = item.id
-            json_obj['username'] = item.username
-            json_obj['password'] = item.password
-            json_data.append(json_obj)
         return Response(json_data)
         
     
