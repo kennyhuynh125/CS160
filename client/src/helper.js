@@ -2,7 +2,9 @@ import axios from 'axios';
 
 // makes api call to add a new driver to the database
 export const addDriver = (userId, isDriver, status, latitude, longitude) => {
-    if (isDriver === 'true' && userId !== null) {
+    alert('called')
+    if (isDriver && userId !== null) {
+        alert('passed')
         axios.post('/api/adddriver', {
             userId: userId,
             status: status,
@@ -11,8 +13,10 @@ export const addDriver = (userId, isDriver, status, latitude, longitude) => {
         })
         .then((response) => {
             if (response.data) {
+                alert('Added new driver')
                 console.log('Added new driver');
             } else {
+                alert('Driver already in db')
                 console.log('Driver already in db');
             }
         })
@@ -44,7 +48,7 @@ export const updateDriverStatus = (userId, isDriver, newStatus, callback) => {
 
 // make api call to update driver's latitude and longitude
 export const updateDriverLocation = (userId, isDriver, newLatitude, newLongitude, callback) => {
-    if (isDriver === 'true' && userId !== null) {
+    if (isDriver && userId !== null) {
         axios.post('/api/updatelocation', {
             userId: userId,
             latitude: newLatitude,

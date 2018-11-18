@@ -1,3 +1,4 @@
+/* global google */
 import React, {Component} from 'react';
 import {Container, Button, Row, Col, Form } from 'reactstrap';
 import axios from 'axios';
@@ -117,10 +118,10 @@ class Booking extends Component {
 
 	requestRide2 = (isFixed) => {
 		axios.post(`api/addriderequest`, {
-			customerLatitude: this.state.start[0],
-			customerLongitude: this.state.start[1],
-			destinationLatitude: this.state.dest[0],
-			destinationLongitude: this.state.dest[1],
+			customerLatitude: this.state.currentPos[0],
+			customerLongitude: this.state.currentPos[1],
+			destinationLatitude: this.state.selectedPos[0],
+			destinationLongitude: this.state.airportPos[1],
 			userId: sessionStorage.getItem('userId'),
             fixedDriver: true,
 		}).then((response) => {
@@ -131,15 +132,51 @@ class Booking extends Component {
 						message: 'Notifying driver...',
 						requestId: response.data,
 					}, () => {
-						const interval = setInterval(() => {this.findRide()}, 5000);
-						this.setState({
-							interval: interval,
-						})
+						//const interval = setInterval(() => {this.findRide()}, 5000);
+						//this.setState({
+						//	interval: interval,
+						//})
 					});
 			}
 		})
 	}
-
+	pathtest = (isFixed) => {
+        const destlat = this.state.isToAirport ? this.state.airportPos[0] : this.state.selectedPos[0];
+        const destlong = this.state.isToAirport ? this.state.airportPos[1] : this.state.selectedPos[1];
+		axios.post(`api/pathtest`, {
+			customerLatitude: this.state.currentPos[0],
+			customerLongitude: this.state.currentPos[1],
+			destinationLatitude: destlat,
+			destinationLongitude: destlong,
+			userId: sessionStorage.getItem('userId'),
+		}).then((response) => {
+            //Array of driver ids
+            const driverIds = response.data[0]
+            const DirectionsService = new google.maps.DirectionsService();
+            const pointarrays = [];
+            var i;
+            for(i = 0; i < driverIds.length; i++) {
+                //Multilayered calls?
+                axios.post(`api/getdriverloc`, {
+                    driverId: driverIds[i],
+                }).then((response) => {
+                    DirectionsService.route({
+                        origin: new google.maps.LatLng(response.data[0]['driverLatitude'], response.data[0]['driverLongitude']),
+                        destination: new google.maps.LatLng(destlat, destlong),
+                        travelMode: google.maps.TravelMode.DRIVING,
+                    }, (result, status) => {
+                        //Finally get each array of points...here comes trouble I suppose
+                        if (result !== null && result.routes.length !== 0) {
+                            pointarrays.push(result.routes[0].overview_path);
+                            //If you attempt to read from pointarrays outside of this block, it doesn't contain the data...
+                        }
+                    });
+                    //So reading pointarrays from here gives blank. 
+                })
+            }
+            
+		})
+	}
 	// makes api call to check if driver accepted/decline ride request
 	findRide = () => {
 		axios.post('/api/getcustomerrequests', {
@@ -227,6 +264,10 @@ class Booking extends Component {
 						<Col xs="3">
 							<Button color="primary" onClick={this.handleDirectionToggle}>{this.state.buttonText} and {this.state.isToAirport.toString()}</Button>
 						</Col>
+                        <Form>
+						<Button onClick={this.requestRide2}>Request a Ride</Button>
+                        <Button onClick={this.pathtest}>Testing</Button>
+						</Form>
 						<div style={SPACER} />
 					</Row>
 					<div style={SPACER} />
@@ -295,9 +336,6 @@ class Booking extends Component {
                                 this.state.displayMessage && (
                                 <p>{this.state.message}</p>
                             )}
-                            <Form>
-								<Button onClick={this.requestRide2}>Request a Ride</Button>
-							</Form>
                         </div>
 					}
             </Container>

@@ -36,6 +36,21 @@ class DriverHomePage extends Component {
             hasAccepted: null,
         }
     }
+    componentDidMount() {
+        this.getGeoLocation()
+	}
+    getGeoLocation = () => {
+        const geolocation = navigator.geolocation;
+        if (geolocation) {
+            geolocation.getCurrentPosition((position) => {
+                this.setState({
+                    currentPos: [position.coords.latitude, position.coords.longitude]
+                })
+            });
+        } else {
+            console.log('Not supported');
+        }
+	}
     checkForNewCustomers = (userId) => {
         console.log(userId);
        axios.post('/api/getdriverrequests', {
@@ -65,23 +80,28 @@ class DriverHomePage extends Component {
 
     // makes request to api to update status
     updateStatus = () => {
-				alert('status update');
         const userId = sessionStorage.getItem('userId');
-        const isDriver = sessionStorage.getItem('driver');
-        const newStatus = this.state.selectedStatus;
-        updateDriverStatus(userId, isDriver, newStatus, () => {
-            let interval;
-            if (newStatus === 0) {
-                clearInterval(this.state.interval);
-            } else if (newStatus === 1) {
-                interval = setInterval(() => { this.checkForNewCustomers(userId) }, 10000); 
-            }
-            this.setState({
-                hasUpdatedStatus: true,
-                interval: interval,
+        const isDriver = sessionStorage.getItem('isDriver');
+		if (isDriver && userId !== null) {
+            axios.post('/api/updatestatus', {
+                userId: userId,
+                status: this.state.selectedStatus
+            }).then((response) => {
+                console.log(response);
+                if (response === 0) {
+                    clearInterval(this.state.interval);
+                } else if(response === 1) {
+                    let interval = setInterval(() => { this.checkForNewCustomers(userId) }, 5000);
+                    this.setState({
+                        hasUpdatedStatus: true,
+                        interval: interval,
+                    });
+                }  
+            })
+            .catch((error) => {
+                console.log(error);
             });
-        })
-		
+        }		
     }
     // makes request to api to update location
     updateLocation = () => {
@@ -130,7 +150,7 @@ class DriverHomePage extends Component {
                 hasAccepted: true,
                 foundRider: false,
             }, () => {
-                let interval = setInterval(() => { this.updateLocation(); setTimeout(() => {this.checkForNewCustomers}, 30000);}, 60000);
+                let interval = setInterval(() => { this.updateLocation(); setTimeout(() => {this.checkForNewCustomers}, 5000);}, 10000);
                 this.setState({
                     interval: interval,
                 });
@@ -155,7 +175,50 @@ class DriverHomePage extends Component {
             });
         });
     }
+    setPath = (path) => {
+		if(path !== null) {
+			let points = []
+			for (const point of path) {
+				points.push([point.lat(), point.lng()]);
+			}
+			this.setState({
+				point: points,
+			});
+		}
+	}
 
+	// walks trough the path 
+	walkThroughPath = (pointIndex) => {
+		if (pointIndex >= this.state.point.length) {
+			if(this.state.driverToCustomer) {	
+				alert('Driver has arrived.');
+				this.setState({
+					pointIndex: 0,
+					driverToCustomer: false,
+					start: this.state.initialStart,
+					dest: this.state.initialDest,
+				});
+			} else {
+				alert('You have arrived at your destination.');
+				this.setState({
+					pointIndex: 0,
+					start: [0,0],
+					dest: [0,0],
+					initialStart: [],
+					initialDest: [],
+				}, () => {
+					clearInterval(this.state.interval);
+				})
+			}	
+		} else {
+			const point = this.state.point[pointIndex];
+			this.setState({
+				pointIndex: this.state.pointIndex + 1,
+				driverLatitude: point[0],
+				driverLongitude: point[1],
+			});
+		}
+	}
     render() {
         return (
             <div>
