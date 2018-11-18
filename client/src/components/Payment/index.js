@@ -11,7 +11,6 @@ export default class Payment extends Component {
         this.state = {
             collapseCard: false,
             collapseAddr: false,
-            savedAddresses: 'No addresses saved',
             ccName: '',
             ccCardType: '',
             ccCardNum: '',
@@ -19,6 +18,15 @@ export default class Payment extends Component {
             ccExpYear: '',
             ccCVV: '',
             savedCards: [],
+            savedAddresses: [],
+            firstName: '',
+            lastName: '',
+            street: '',
+            aptNo: null,
+            city: '',
+            state: '',
+            country: '',
+            zip: '',
         }
     }
 
@@ -28,6 +36,15 @@ export default class Payment extends Component {
         .then((response) => {
             this.setState({
                 savedCards: response.data,
+            });
+        })
+        .catch((error) => {
+            console.log(error.message);
+        })
+        axios.get(`/api/getaddresses/${userId}`)
+        .then((response) => {
+            this.setState({
+                savedAddresses: response.data,
             });
         })
         .catch((error) => {
@@ -100,14 +117,65 @@ export default class Payment extends Component {
         this.setState({ collapseAddr: !this.state.collapseAddr });
     }
 
-    addAddress = (e) => {}
-    handleFirstNameChange = (e) => {}
-    handleLastNameChange = (e) => {}
-    handleStreetChange = (e) => {}
-    handleAptNumChange = (e) => {}
-    handleCityChange = (e) => {}
-    handleStateChange = (e) => {}
-    handleCountryChange = (e) => {}
+    addAddress = (e) => {
+        const userId = sessionStorage.getItem('userId');
+        axios.post('/api/addaddress', {
+            userId: userId,
+            firstName: this.state.firstName,
+            lastName: this.state.lastName,
+            street: this.state.street,
+            aptNo: this.state.aptNo,
+            city: this.state.city,
+            state: this.state.state,
+            country: this.state.country,
+            zipCode: this.state.zip,
+        })
+        .then((response) => {
+            console.log(response);
+            if(response.data === true) {
+                alert('Address successfully added');
+                window.location.reload();
+            } else {
+                alert('Field(s) may contain invalid input.');
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+        e.preventDefault();
+    }
+
+    handleFirstNameChange = (e) => {
+        this.setState({ firstName: e.target.value });
+    }
+
+    handleLastNameChange = (e) => {
+        this.setState({ lastName: e.target.value });
+    }
+
+    handleStreetChange = (e) => {
+        this.setState({ street: e.target.value });
+    }
+
+    handleAptNumChange = (e) => {
+        this.setState({ aptNo: e.target.value });
+    }
+
+    handleCityChange = (e) => {
+        this.setState({ city: e.target.value });
+    }
+
+    handleStateChange = (e) => {
+        this.setState({ state: e.target.value });
+    }
+
+    handleCountryChange = (e) => {
+        this.setState({ country: e.target.value });
+    }
+
+    handleZipChange = (e) => {
+        this.setState({ zip: e.target.value });
+    }
 
 
     render() {
@@ -194,7 +262,7 @@ export default class Payment extends Component {
                                 </Card>
                             </Collapse><hr/>
                             <h5>Billing Address</h5>
-                            <SavedAddresses cards={this.state.savedAddresses} />
+                            <SavedAddresses addresses={this.state.savedAddresses} />
                             <p/><Button onClick={this.toggleAddr} style={{ marginBottom: '1rem' }} color="info">Add New Address</Button>
                                 <Collapse isOpen={this.state.collapseAddr}>
                                 <Card>
@@ -202,14 +270,14 @@ export default class Payment extends Component {
                                     <Form onSubmit={this.addAddress}>
                                         <Row><Col md={6}>
                                         <FormGroup>
-                                            <Label for="firstname">First Name</Label>
-                                            <Input type="text" name="firstname" id="firstname" onChange={this.handleFirstNameChange} required />
+                                            <Label for="firstName">First Name</Label>
+                                            <Input type="text" name="firstName" id="firstName" onChange={this.handleFirstNameChange} required />
                                         </FormGroup>
                                         </Col>
                                         <Col md={6}>
                                         <FormGroup>
-                                            <Label for="lastname">Last Name</Label>
-                                            <Input type="text" name="lastname" id="lastname" onChange={this.handleLastNameChange} required />
+                                            <Label for="lastName">Last Name</Label>
+                                            <Input type="text" name="lastName" id="lastName" onChange={this.handleLastNameChange} required />
                                         </FormGroup>
                                         </Col></Row>
                                         <Row><Col md={8}>
@@ -219,29 +287,35 @@ export default class Payment extends Component {
                                         </FormGroup>
                                         </Col><Col md={4}>
                                         <FormGroup>
-                                            <Label for="aptno">Apartment Number</Label>
-                                            <Input type="text" name="aptno" id="aptno" onChange={this.handleAptNumChange} />
+                                            <Label for="aptNo">Apartment Number</Label>
+                                            <Input type="text" name="aptNo" id="aptNo" onChange={this.handleAptNumChange} />
                                         </FormGroup>
                                         </Col></Row>
-                                        <Row><Col md={6}>
+                                        <Row><Col md={5}>
                                         <FormGroup>
                                             <Label for="city">City</Label>
-                                            <Input type="text" name="city" id="city" onChange={this.handleCityChange} />
+                                            <Input type="text" name="city" id="city" onChange={this.handleCityChange} required />
                                         </FormGroup>
                                         </Col><Col md={2}>
                                         <FormGroup>
                                             <Label for="state">State</Label>
-                                            <Input type="select" name="state" id="state" onChange={this.handleStateChange}>
+                                            <Input type="select" name="state" id="state" onChange={this.handleStateChange} required>
+                                                <option value="default">Select State</option>
                                                 <option value="CA">CA</option>
-                                                <option value="x">other states here</option>
                                             </Input>
                                         </FormGroup>
-                                        </Col><Col md={4}>
+                                        </Col><Col md={3}>
                                         <FormGroup>
                                             <Label for="country">Country</Label>
-                                            <Input type="select" name="country" id="country" onChange={this.handleCountryChange}>
+                                            <Input type="select" name="country" id="country" onChange={this.handleCountryChange} required>
+                                                <option value="default">Select Country</option>
                                                 <option value="USA">USA</option>
                                             </Input>
+                                        </FormGroup>
+                                        </Col><Col md={2}>
+                                        <FormGroup>
+                                            <Label for="zip">Zip Code</Label>
+                                            <Input type="number" name="zip" id="zip" onChange={this.handleZipChange} required />
                                         </FormGroup>
                                         </Col></Row>
                                         <Button color="info">Submit</Button>
