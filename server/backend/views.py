@@ -7,8 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import User, Payment, Driver, RideRequests
-from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer, RideRequestsSerializer
+from .models import User, Payment, Address, Driver, RideRequests
+from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, AddressSerializer, DriverSerializer, RideRequestsSerializer
 from django.conf import settings
 
 import googlemaps
@@ -86,6 +86,39 @@ class AddNewCard(generics.ListCreateAPIView):
     serializer_class = PaymentSerializer
     def post(self, request):
         data_serializer = PaymentSerializer(data=request.data)
+        # check if info is valid
+        if data_serializer.is_valid():
+            data_serializer.save()
+            return Response(True)
+        else:
+            return Response(False)
+
+class ListAddressesByUser(generics.ListCreateAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    renderer_classes = (JSONRenderer,)
+    def get(self, request, userId):
+        data = Address.objects.filter(userId=userId)
+        json_data = []
+        for address in data:
+            json_obj = {}
+            json_obj['firstName'] = address.firstName
+            json_obj['lastName'] = address.lastName
+            json_obj['street'] = address.street
+            json_obj['aptNo'] = address.aptNo
+            json_obj['city'] = address.city
+            json_obj['state'] = address.state
+            json_obj['country'] = address.country
+            json_obj['zipCode'] = address.zipCode
+            json_data.append(json_obj)
+        return Response(json_data)
+
+
+class AddNewAddress(generics.ListCreateAPIView):
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+    def post(self, request):
+        data_serializer = AddressSerializer(data=request.data)
         # check if info is valid
         if data_serializer.is_valid():
             data_serializer.save()

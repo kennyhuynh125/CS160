@@ -8,6 +8,8 @@ urlpatterns = [
     path('loguser', views.LogUser.as_view()),
     path('addcard', views.AddNewCard.as_view()),
     path('getcards/<int:userId>', views.ListCardsByUser.as_view()),
+    path('addaddress', views.AddNewAddress.as_view()),
+    path('getaddresses/<int:userId>', views.ListAddressesByUser.as_view()),
     path('location/<latitude>/<longitude>', views.Location.as_view()),
     path('adddriver', views.AddDriver.as_view()),
     path('updatelocation', views.UpdateDriverLocation.as_view()),
