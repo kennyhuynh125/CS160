@@ -14,6 +14,7 @@ from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer,
 from django.conf import settings
 
 import googlemaps
+import json
 
 GOOGLE_API_KEY = getattr(settings, 'API_KEY', None)
 gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
@@ -120,8 +121,6 @@ class AddDriver(generics.ListCreateAPIView):
                 return Response(True)
             else:
                 return Response(False)
-            
-
 
 class UpdateDriverLocation(generics.ListCreateAPIView):
     queryset = Driver.objects.all();
@@ -130,17 +129,21 @@ class UpdateDriverLocation(generics.ListCreateAPIView):
         user_id = request.data['userId']
         latitude = request.data['latitude']
         longitude = request.data['longitude']
-        driver = Driver.objects.get(userId=user_id)
-        driver.currentLatitude = latitude
-        driver.currentLongitude = longitude
         try:
+            driver = Driver.objects.get(userId=user_id)          
+            driver.currentLatitude = latitude
+            driver.currentLongitude = longitude
             driver.save()
             return Response(True)
         except Exception as e:
             print(e);
             return Response(False)
 
-
+# status = 0 unavailable
+# status = 1 idle
+# status = 2 driving
+# status = 3 driving + rerouted 
+# status = 4 receiving payment? -> allows api to reset status to 1
 class UpdateDriverStatus(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
@@ -149,8 +152,11 @@ class UpdateDriverStatus(generics.ListCreateAPIView):
             user_id = request.data['userId']
             status = request.data['status']
             driver = Driver.objects.get(userId=user_id)
-            driver.status = status
-            driver.save()
+            if (status==0 | status==1) & (driver.status==2 | driver.status==3):
+                return Response(False)
+            else: 
+                driver.status = status
+                driver.save()
             return Response(driver.status)
         except Exception as e:
             print(e)
@@ -211,42 +217,18 @@ class GetDriver(generics.ListCreateAPIView):
         json_data.append(json_obj)
         return Response(json_data)
 
-# Query proceedure:
-# Input: Customer Location, Destination, customerID
-# Search driver table for closest driver
-# Driver valid statuses: 1 = idle 2=driving but can be rerouted once 3=do not reroute
-# Notify driver? I believe their client auto scans so the request should be picked up if it is theirs.
-# Respond to customer
-
-class AddRequest(generics.ListCreateAPIView):
-    queryset = RideRequests.objects.all()
+class GetDriverLocation(generics.ListCreateAPIView):
+    queryset = Driver.objects.all()
     def post(self, request):
-    #fixedDrivers is not functional
-        if request.data['fixedDriver'] == True:
-            validDrivers = Driver.objects.filter(Q(status=1)|Q(status=2)&Q(fixedDriverId__isnull=False))
-        else:
-            validDrivers = Driver.objects.filter(Q(status=1)|Q(status=2)&Q(fixedDriverId__isnull=True))
-        shortestTime = 1800
-        closestDriver = None
-        for driver in validDrivers:
-            time = getDuration(request.data['customerLatitude'], request.data['customerLongitude'], driver.currentLatitude, driver.currentLongitude )
-            if (time < shortestTime):
-                shortestTime = time
-                closestDriver = driver
-        if closestDriver != None:
-            request.data['driverId'] = closestDriver.id
-            request.data['driverLatitude'] = closestDriver.currentLatitude
-            request.data['driverLongitude'] = closestDriver.currentLongitude
-        data_serializer = RideRequestsSerializer(data=request.data)
-        if data_serializer.is_valid():
-            instance = data_serializer.save()
-            json_data = []
-            json_obj = {}
-            json_obj['id'] = instance.id
-            json_obj['duration'] = time
+        try:
+            driver = Driver.objects.get(userId=request.data['driverId'])
+            json_data=[]
+            json_obj={}
+            json_obj['driverLatitude'] = driver.currentLatitude
+            json_obj['driverLongitude'] = driver.currentLongitude
             json_data.append(json_obj)
             return Response(json_data)
-        else:
+        except ObjectDoesNotExist:
             return Response(False)
             
 class GetRequestByDriverUserId(generics.ListCreateAPIView):
@@ -316,21 +298,85 @@ class UpdateRequest(generics.ListCreateAPIView):
 class GetDurationAndDistance(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     def post(self, request):
-        starting_latitude = request.data['startLat']
-        starting_longitude = request.data['startLong']
-        destination_latitude = request.data['destLat']
-        destination_longitude = request.data['destLong']
         json_data = []
         json_obj = {}
-        duration = getDuration(starting_latitude, starting_longitude, destination_latitude, destination_longitude)
-        distance = getDistance(starting_latitude, starting_longitude, destination_latitude, destination_longitude)
+        duration = getDuration(request.data['startLat'], request.data['startLong'], request.data['destLat'], request.data['destLong'])
+        distance = getDistance(request.data['startLat'], request.data['startLong'], request.data['destLat'], request.data['destLong'])
         json_obj['duration'] = int(round(duration / 60)) # since it comes in seconds
         json_obj['distance'] = round(distance / 1610, 1)
         json_data.append(json_obj)
         return Response(json_data)
 
-        
+# Query proceedure:
+# Input: Customer Location, Destination, customerID
+# Search driver table for closest driver
+# Driver valid statuses: 1 = idle 2=driving but can be rerouted once 3=do not reroute
+# Notify driver? I believe their client auto scans so the request should be picked up if it is theirs.
+# Respond to customer
 
+class AddRequest(generics.ListCreateAPIView):
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+    #fixedDrivers is not functional
+        validDrivers = RideRequests.objects.filter(Q(destinationLatitude=request.data['destinationLatitude'])&Q(destinationLongitude=request.data['destinationLongitude'])&Q(driver__status=1))
+        print(validDrivers)
+        closestDriver = None
+        shortestTime = 1800
+        # Check first reroutes, both destinations have to be the same
+        for driver in validDrivers:
+            maxDistance = 1610
+            distance = getDistance(request.data['customerLatitude'], request.data['customerLongitude'], driver.currentLatitude, driver.currentLongitude )
+            time = getDistance(request.data['customerLatitude'], request.data['customerLongitude'], driver.currentLatitude, driver.currentLongitude )
+            if (distance < maxDistance):
+                shortestTime = time
+                closestDriver = driver
+        if closestDriver == None:
+            validDrivers = Driver.objects.filter(Q(status=1))
+            for driver in validDrivers:
+                time = getDistance(request.data['customerLatitude'], request.data['customerLongitude'], driver.currentLatitude, driver.currentLongitude )
+                if (time < shortestTime):
+                    shortestTime = time
+                    closestDriver = driver
+        if closestDriver != None:
+            request.data['driverId'] = closestDriver.id
+            request.data['driverLatitude'] = closestDriver.currentLatitude
+            request.data['driverLongitude'] = closestDriver.currentLongitude
+            getPathPoints(request.data['customerLatitude'], request.data['customerLongitude'], closestDriver.currentLatitude, closestDriver.currentLongitude)
+        data_serializer = RideRequestsSerializer(data=request.data)
+        if data_serializer.is_valid():
+            instance = data_serializer.save()
+            json_data = []
+            json_obj = {}
+            json_obj['id'] = instance.id
+            json_obj['duration'] = time
+            json_data.append(json_obj)
+            return Response(json_data)
+        else:
+            return Response(False)       
+        
+class PathTest(generics.ListCreateAPIView):        
+    queryset = RideRequests.objects.all()
+    def post(self, request):
+        
+        #Query: Gets all drivers who are not rerouted, and also are headed to the same destination
+        validDrivers = Driver.objects.filter(Q(status=1))
+        fullset = set()
+        for aDriver in validDrivers:
+            print(aDriver.userId)
+            #This is problematic: Need to update finished requests for this function to work properly
+            #Error case: Current driver is driving to SFO, has a ride history of driving to OAK, new request from user to OAK
+            #Fix?: Update accepted column to 2 when ride is complete?
+            fullset = fullset.union(RideRequests.objects.filter(Q(destinationLatitude=request.data['destinationLatitude'])&Q(destinationLongitude=request.data['destinationLongitude'])&Q(driverId=aDriver.userId)&Q(accepted=1)))
+        #Hacky fix implementation: Tell frontend to ping drivers for a route. Exposes unecessary driver data.
+        json_data = []
+        json_obj = set()
+        print(fullset)
+        #Adds all reroutable drivers to this list
+        for aRequest in fullset:
+            json_obj.add(aRequest.driverId)
+        json_data.append(json_obj)
+        print(json_data)
+        return Response(json_data)
 def getDuration(latitude, longitude, destLatitude, destLongitude):
     firstLocation = str(latitude) + ", " + str(longitude)
     destLocation = str(destLatitude) + ", " + str(destLongitude)
@@ -345,8 +391,22 @@ def getDistance(latitude, longitude, destLatitude, destLongitude):
     firstLocation = str(latitude) + ", " + str(longitude)
     destLocation = str(destLatitude) + ", " + str(destLongitude)
     now = datetime.now()
+    
     directions_result = gmaps.directions(firstLocation,
                          destLocation,
                          mode="driving",
                          departure_time=now)
+    
     return directions_result[0]['legs'][0]['distance']['value']
+    
+def getPathPoints(latitude, longitude, destLatitude, destLongitude):
+    firstLocation = str(latitude) + ", " + str(longitude)
+    destLocation = str(destLatitude) + ", " + str(destLongitude)
+    now = datetime.now()
+    
+    directions_result = gmaps.directions(firstLocation,
+                         destLocation,
+                         mode="driving",
+                         departure_time=now)
+    print(directions_result[0].keys())
+    print(directions_result[0]['warnings'])

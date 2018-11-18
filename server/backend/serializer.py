@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Payment, Driver
+from .models import User, Payment, Driver, RideRequests
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,7 +13,6 @@ class UserSerializer(serializers.ModelSerializer):
 class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
-            'id',
             'username',
             'password',
         )
@@ -45,3 +44,19 @@ class DriverSerializer(serializers.ModelSerializer):
             'currentLongitude',
         )
         model = Driver
+
+class RideRequestsSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'id',
+            'driverId',
+            'userId',
+            'customerLatitude',
+            'customerLongitude',
+            'destinationLatitude',
+            'destinationLongitude',
+            'driverLatitude',
+            'driverLongitude',
+            'accepted',
+        )
+        model = RideRequests

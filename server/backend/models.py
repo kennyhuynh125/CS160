@@ -8,7 +8,6 @@ class User(models.Model):
     firstName = models.CharField(max_length=200, null=True)
     lastName = models.CharField(max_length=200, null=True)
     email = models.EmailField(max_length=255, null=True)
-    allowDetour = models.BooleanField(default=False)
 
 class Payment(models.Model):
     userId = models.IntegerField()
@@ -19,7 +18,7 @@ class Payment(models.Model):
     ccExpirationYear = models.IntegerField(default=0)
     ccCVV = models.IntegerField(default=0)
     ccIsDefault = models.BooleanField(default=False)
-
+    
 class Driver(models.Model):
     userId = models.IntegerField(null=True)
     status = models.IntegerField(default=-1)
@@ -27,4 +26,13 @@ class Driver(models.Model):
     currentLongitude = models.FloatField(default=0)
     fixedDriverId = models.IntegerField(null=True)
     
-    
+class RideRequests(models.Model):
+    driverId = models.IntegerField(null=False)
+    userId = models.IntegerField(null=True)
+    customerLatitude = models.FloatField(default=0)
+    customerLongitude = models.FloatField(default=0)
+    destinationLatitude = models.FloatField(default=0)
+    destinationLongitude = models.FloatField(default=0)
+    driverLatitude = models.FloatField(default=0, null=True)
+    driverLongitude = models.FloatField(default=0, null=True)
+    accepted = models.IntegerField(default=0)
