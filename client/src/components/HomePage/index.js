@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import CustomerHomePage from '../CustomerHomePage';
 import DriverHomePage from  '../DriverHomePage';
+import BlockedPage from '../BlockedPage';
 
 /*
 This component is distinguished from Home in that this page displays the customer or driver homepage as necessary
@@ -17,6 +18,7 @@ class HomePage extends Component {
             location: [],
             isCustomer: null,
             isLoggedIn: false,
+            allowedLocation: true,
         }
     }
 
@@ -27,15 +29,24 @@ class HomePage extends Component {
             isCustomer: (isCustomer === 'true') ? true : (isCustomer === 'false') ? false : null,
             isLoggedIn: (isLoggedIn === 'true') ? true : (isLoggedIn === 'false') ? false : null,
         });
+        this.getGeoLocation();
     }
     getGeoLocation = () => {
         const geolocation = navigator.geolocation;
+        
         if (geolocation) {
             geolocation.getCurrentPosition((position) => {
                 this.setState({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude
-                })
+                });
+            },(error) => {
+                console.log(error);
+                if (error.code !== undefined && error.code === 1) {
+                    this.setState({
+                        allowedLocation: false,
+                    })
+                }
             });
         } else {
             console.log('Not supported');
@@ -58,18 +69,27 @@ class HomePage extends Component {
         return (
             <Container>
                 <center>
-                    <div>
-                        {
-                            this.state.isCustomer === true && (
-                                <CustomerHomePage />
-                            )
-                        }
-                        {
-                            this.state.isCustomer === false && (
-                                <DriverHomePage />
-                            )
-                        }
-                    </div>
+                    {
+                        this.state.allowedLocation && (
+                            <div>
+                                {
+                                    this.state.isCustomer === true && (
+                                        <CustomerHomePage />
+                                    )
+                                }
+                                {
+                                    this.state.isCustomer === false && (
+                                        <DriverHomePage />
+                                    )
+                                }
+                            </div>
+                        )
+                    }
+                    {
+                        !this.state.allowedLocation && (
+                            <BlockedPage />
+                        )
+                    }
                 </center>
             </Container>
         )

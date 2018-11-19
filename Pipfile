@@ -12,5 +12,7 @@ googlemaps = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
 mysql-connector-python = "*"
+gunicorn = "*"
+whitenoise = "*"
 
 [dev-packages]

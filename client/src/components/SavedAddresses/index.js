@@ -12,15 +12,27 @@ const SavedAddresses = (props) => {
                     <Table bordered hover striped>
                         <thead>
                             <tr>
-                                
+                                <th>First Name</th>
+                                <th>Last name</th>
+                                <th>Street</th>
+                                <th>Apt No.</th>
+                                <th>City</th>
+                                <th>State</th>
+                                <th>Zip</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                props.cards.map((address, i) => {
+                                props.addresses.map((address, i) => {
                                     return (
                                         <tr key={i+1}>
-                                            
+                                            <td>{address.firstName}</td>
+                                            <td>{address.lastName}</td>
+                                            <td>{address.street}</td>
+                                            <td>{address.aptNo}</td>
+                                            <td>{address.city}</td>
+                                            <td>{address.state}</td>
+                                            <td>{address.zipCode}</td>
                                         </tr>
                                     )
                                 })

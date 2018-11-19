@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Payment, Driver, RideRequests
+from .models import User, Payment, Driver, RideRequests, Address
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,6 +7,9 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'password',
+            'firstName',
+            'lastName',
+            'email'
         )
         model = User
 
@@ -33,6 +36,22 @@ class PaymentSerializer(serializers.ModelSerializer):
             'ccIsDefault',
         )
         model = Payment
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'id',
+            'userId',
+            'firstName',
+            'lastName',
+            'street',
+            'aptNo',
+            'city',
+            'state',
+            'country',
+            'zipCode',
+        )
+        model = Address
 
 class DriverSerializer(serializers.ModelSerializer):
     class Meta:
