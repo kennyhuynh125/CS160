@@ -8,7 +8,6 @@ class User(models.Model):
     firstName = models.CharField(max_length=200, null=True)
     lastName = models.CharField(max_length=200, null=True)
     email = models.EmailField(max_length=255, null=True)
-    allowDetour = models.BooleanField(default=False)
 
 class Payment(models.Model):
     userId = models.IntegerField()
@@ -19,6 +18,18 @@ class Payment(models.Model):
     ccExpirationYear = models.IntegerField(default=0)
     ccCVV = models.IntegerField(default=0)
     ccIsDefault = models.BooleanField(default=False)
+
+class Address(models.Model):
+    userId = models.IntegerField()
+    firstName = models.CharField(max_length=200)
+    lastName = models.CharField(max_length=200)
+    street = models.CharField(max_length=200)
+    aptNo = models.CharField(max_length=200, null=True)
+    city = models.CharField(max_length=200)
+    state = models.CharField(max_length=200)
+    country = models.CharField(max_length=200)
+    zipCode = models.IntegerField(default=94544)
+
 
 class Driver(models.Model):
     userId = models.IntegerField(null=True)

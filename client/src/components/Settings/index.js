@@ -1,20 +1,43 @@
 import React, {Component} from 'react';
-import { Container, Collapse, Button, CardBody, Card, Form, FormGroup, Label, Input, Col, Row, Table } from 'reactstrap';
-//import Editable from 'react-x-editable';
+import { Container, Collapse, Button, CardBody, Card, Form, FormGroup, Label, Input, Table } from 'reactstrap';
+import axios from 'axios';
 
-//this is not fully functional - updated values are edited live in the table and the database is not updated
+
 export default class Settings extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            firstName: 'First Name',
-            lastName: 'Last Name',
-            email: 'E-mail',
-            phone: 'Phone',
+            firstName: '',
+            lastName: '',
+            email: '',
             collapseCard: false,
+            currentFirstName: '',
+            currentLastName: '',
+            currentEmail: '',
         }
     }
 
+    componentDidMount() {
+        const userId = sessionStorage.getItem('userId');
+        axios.post('/api/getuserinfo', {
+            userId: userId,
+        })
+        .then((response) => {
+            if (response.data.length !== 0) {
+                this.setState({
+                    firstName: response.data[0].firstName !== null ? response.data[0].firstName : '',
+                    currentFirstName: response.data[0].firstName !== null ? response.data[0].firstName : '',
+                    lastName: response.data[0].lastName !== null ? response.data[0].lastName : '',
+                    currentLastName: response.data[0].lastName !== null ? response.data[0].lastName : '',
+                    email: response.data[0].email!== null ? response.data[0].email : '',
+                    currentEmail: response.data[0].email !== null ? response.data[0].email : '',
+                });
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
 
     // changes the firstname state to what the user inputs
     handleFirstNameChange = (e) => {
@@ -37,20 +60,92 @@ export default class Settings extends Component {
         })
     }
 
-    // changes the phone number state to what the user inputs
-    handlePhoneChange = (e) => {
-        this.setState({
-            phone: e.target.value,
-        })
-    }
-
     toggleCard = () => {
         this.setState({ collapseCard: !this.state.collapseCard });
+    }
+
+    updateFirstName = (event) => {
+        event.preventDefault();
+        if (this.state.firstName.toLowerCase() === this.state.currentFirstName.toLowerCase()) {
+            alert('No changes made.');
+            return;
+        }
+        const userId = sessionStorage.getItem('userId');
+        axios.post('/api/updatefirstname', {
+            userId: userId,
+            firstName: this.state.firstName,
+        })
+        .then((response) => {
+            if (response.data === true) {
+                alert ('First name updated.');
+                this.setState({
+                    currentFirstName: this.state.firstName,
+                });
+            } else {
+                alert('Error: Could not update information.');
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
+
+    updateLastName = (event) => {
+        event.preventDefault();
+        if (this.state.lastName.toLowerCase() === this.state.currentLastName.toLowerCase()) {
+            alert('No changes made.');
+            return;
+        }
+        const userId = sessionStorage.getItem('userId');
+        axios.post('/api/updatelastname', {
+            userId: userId,
+            lastName: this.state.lastName
+        })
+        .then((response) => {
+            if (response.data === true) {
+                alert ('Last name updated.');
+                this.setState({
+                    currentLastName: this.state.lastName,
+                });
+            } else {
+                alert('Error: Could not update information.');
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }
+
+    updateEmail = (event) => {
+        event.preventDefault();
+        if (this.state.email.toLowerCase() === this.state.currentEmail.toLowerCase()) {
+            alert('No changes made.');
+            return;
+        }
+        const userId = sessionStorage.getItem('userId');
+        axios.post('/api/updateemail', {
+            userId: userId,
+            email: this.state.email,
+        })
+        .then((response) => {
+            if (response.data === true) {
+                alert ('Email updated.');
+                this.setState({
+                    currentEmail: this.state.email,
+                });
+            } else {
+                alert('Error: Could not update information.');
+            }
+        })
+        .catch((error) => {
+            console.log(error);
+        });
     }
 
 
     render() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+        console.log(this.state);
         return (
             <Container>
             {
@@ -63,52 +158,44 @@ export default class Settings extends Component {
                                 <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>E-mail</th>
-                                <th>Phone Number</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>{this.state.firstName}</td>
-                                <td>{this.state.lastName}</td>
-                                <td>{this.state.email}</td>
-                                <td>{this.state.phone}</td>
+                                <td>{this.state.currentFirstName}</td>
+                                <td>{this.state.currentLastName}</td>
+                                <td>{this.state.currentEmail}</td>
                             </tr>
                         </tbody>
                     </Table>
-                <p/><Button onClick={this.toggleCard} style={{ marginBottom: '1rem' }} color="info">Update Information</Button>
+                    <Button onClick={this.toggleCard} style={{ marginBottom: '1rem' }} color="info">Update Information</Button>
                                 <Collapse isOpen={this.state.collapseCard}>
                                 <Card>
                                     <CardBody>
-                                    <Form onSubmit={this.updateInfo}>
-                                        <Row form><Col md={3}>
-                                            <FormGroup onSubmit={this.updateInfo}>
-                                                <Label for="First Name">Name</Label>
-                                                <Input type="text" name="firstname" id="firstname" onChange={this.handleFirstNameChange} />
-                                            </FormGroup>
-                                        </Col><Col md={3}>
-                                            <FormGroup onSubmit={this.updateInfo}>
-                                                <Label for="Last Name">Last Name</Label>
-                                                <Input type="text" name="lastname" id="lastname" onChange={this.handleLastNameChange} />
-                                            </FormGroup>
-                                        </Col><Col md={3}>
-                                            <FormGroup onSubmit={this.updateInfo}>
-                                                <Label for="E-mail">E-mail</Label>
-                                                <Input type="email" name="email" id="email" onChange={this.handleEmailChange} />
-                                            </FormGroup>
-                                        </Col><Col md={3}>
-                                            <FormGroup onSubmit={this.updateInfo}>
-                                                <Label for="Phone Number">Phone Number</Label>
-                                                <Input type="text" name="number" id="number" onChange={this.handlePhoneChange} pattern="[0-9]{7,10}"/>
-                                            </FormGroup>
-                                        </Col></Row>
-                                        <Button color="info">Submit Updates</Button>
+                                    <Form onSubmit={this.updateFirstName}>
+                                        <FormGroup>
+                                            <Label for="First Name">Name</Label>
+                                            <Input type="text" name="firstname" id="firstname" onChange={this.handleFirstNameChange} value={this.state.firstName} />
+                                            <Button color="info">Change First Name</Button>
+                                        </FormGroup>
+                                    </Form>
+                                    <Form onSubmit={this.updateLastName}>
+                                        <FormGroup>
+                                            <Label for="Last Name">Last Name</Label>
+                                            <Input type="text" name="lastname" id="lastname" onChange={this.handleLastNameChange} value={this.state.lastName} />
+                                            <Button color="info">Change Last Name</Button>
+                                        </FormGroup>
+                                    </Form>
+                                    <Form onSubmit={this.updateEmail}>
+                                        <FormGroup>
+                                            <Label for="E-mail">E-mail</Label>
+                                            <Input type="email" name="email" id="email" onChange={this.handleEmailChange} value={this.state.email} />
+                                            <Button color="info">Change Email</Button>
+                                        </FormGroup>
                                     </Form>
                                     </CardBody>
                                 </Card>
-                            </Collapse><hr/>
-
-                            <p/><h5><a href="/">Ride History</a></h5>
-                            <h5><a href="/">Change Password</a></h5>
+                            </Collapse>
                         </div>
                     )
                 }

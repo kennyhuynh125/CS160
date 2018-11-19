@@ -170,3 +170,17 @@ This will download all the dependencies. After it is done, to test if everything
     python manage.py runserver
 
 This will start up the server. After it is done starting up, go to `localhost:8000` and you should the landing page. (picture of landing page is on our Google Drive under the images folder)
+
+## Database Setup and Environment Variables
+
+Our database is hosted on Amazon RDS. We use environment variables to store our database credentials for security purposes.
+The environment variables that need to be set up are:
+
+`
+DB_HOST
+DB_NAME
+DB_PASSWORD
+DB_USER
+`
+
+To get the credentials for this, please contact one of our members.
