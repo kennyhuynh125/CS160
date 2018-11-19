@@ -1,8 +1,10 @@
-# CS160
+# CS160 - LeftItFly
 
   
 
 CS160 Software Engineering Project
+
+You can view the site on: https://letitfly160.herokuapp.com
 
   
 
