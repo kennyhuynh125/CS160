@@ -127,6 +127,8 @@ You should get something like this:
     pip 9.0.1 from c:\users\andy\appdata\local\programs\python\python35\lib\site-packages (python 3.5)
 
   
+Warning: Some of the project dependencies do not function with pip version 18.1! Use version pip 18.0 instead.
+
 
 Now all of our software are installed correctly!
 
