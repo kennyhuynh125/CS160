@@ -1,4 +1,4 @@
-# CS160 - LeftItFly
+# CS160 - LetItFly
 
   
 
