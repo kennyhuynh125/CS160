@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // makes api call to add a new driver to the database
-export const addDriver = (userId, isDriver, status, latitude, longitude) => {
+export const addDriver = (userId, isDriver, status, latitude, longitude, callback) => {
     if (isDriver === 'true' && userId !== null) {
         axios.post('/api/adddriver', {
             userId: userId,
@@ -14,6 +14,9 @@ export const addDriver = (userId, isDriver, status, latitude, longitude) => {
                 console.log('Added new driver');
             } else {
                 console.log('Driver already in db');
+            }
+            if (callback) {
+                callback();
             }
         })
         .catch((error) => {

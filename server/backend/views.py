@@ -132,6 +132,7 @@ class UpdateDriverLocation(generics.ListCreateAPIView):
             driver = Driver.objects.get(userId=user_id)          
             driver.currentLatitude = latitude
             driver.currentLongitude = longitude
+            driver.status = 0 if driver.status == None else driver.status
             driver.save()
             return Response(True)
         except Exception as e:
@@ -291,18 +292,20 @@ class GetDriverById(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     serialzer_class = DriverSerializer
     def post(self, request):
-        currentDriver = Driver.objects.get(userId=request.data['id'])
-        if currentDriver:
-            json_data = []
-            json_obj = {}
-            json_obj['driverUserId'] = currentDriver.userId
-            json_obj['driverId'] = currentDriver.id
-            json_obj['driverLatitude'] = currentDriver.currentLatitude
-            json_obj['driverLongitude'] = currentDriver.currentLongitude
-            json_data.append(json_obj)
-            return Response(json_data)
-        else:
+        try:
+            currentDriver = Driver.objects.get(userId=request.data['id'])
+            if currentDriver:
+                json_data = []
+                json_obj = {}
+                json_obj['driverUserId'] = currentDriver.userId
+                json_obj['driverId'] = currentDriver.id
+                json_obj['driverLatitude'] = currentDriver.currentLatitude
+                json_obj['driverLongitude'] = currentDriver.currentLongitude
+                json_data.append(json_obj)
+                return Response(json_data)
+        except Driver.DoesNotExist:
             return Response([])
+
 
 
 class AddRequest(generics.ListCreateAPIView):

@@ -65,24 +65,30 @@ class Booking extends Component {
 			isRerouted: false,
 			driverStatus: 0,
 			statusInterval: null,
+			notLoggedOn: false,
         }
 	}
 	
 	// when component mounts, get the user's current location
 	componentDidMount() {
 		const userId = sessionStorage.getItem('userId');
-        axios.get(`/api/getcards/${userId}`)
-        .then((response) => {
-            this.setState({
-				savedCards: response.data,
-				doneLoading: true,
-            });
-        })
-        .catch((error) => {
-            console.log(error.message);
-        })
-		this.getGeoLocation()
-		
+		if (userId === null) {
+			this.setState({
+				notLoggedOn: true,
+			});
+		} else {
+			axios.get(`/api/getcards/${userId}`)
+			.then((response) => {
+				this.setState({
+					savedCards: response.data,
+					doneLoading: true,
+				});
+			})
+			.catch((error) => {
+				console.log(error.message);
+			})
+			this.getGeoLocation()
+		}
 	}
 	
     getGeoLocation = () => {
@@ -286,6 +292,8 @@ class Booking extends Component {
 						updateDriverInterval: setInterval(() => { this.updateLocation(false) }, 1000),
 						isFixedDriver: true,
 						driverStatus: 2,
+						isWaiting: false,
+						driverHasAccepted: true,
 					});
 				});
 			}
@@ -334,37 +342,20 @@ class Booking extends Component {
 				const initialDest = [this.state.dest[0], this.state.dest[1]];
 				const dest = [this.state.start[0], this.state.start[1]];
 				const start = [this.state.driverLatitude, this.state.driverLongitude];
-				if (this.state.driverStatus === 2) {
-					updateDriverStatus(this.state.driverUserId, 'true', 3, () => {
-						this.setState({
-							driverHasAccepted: true,
-							driverToCustomer: true,
-							isWaiting: false,
-							start: start,
-							dest: dest,
-							initialStart: initialStart,
-							initialDest: initialDest,
-							driverStatus: 3,
-							interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 250),
-							updateDriverInterval: setInterval(() => { this.updateLocation(true)}, 1000),
-						})
-					});
-				} else {
-					updateDriverStatus(this.state.driverUserId, 'true', 2, () => {
-						this.setState({
-							driverHasAccepted: true,
-							driverToCustomer: true,
-							isWaiting: false,
-							start: start,
-							dest: dest,
-							initialStart: initialStart,
-							initialDest: initialDest,
-							driverStatus: 2,
-							interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 250),
-							updateDriverInterval: setInterval(() => { this.updateLocation(true)}, 1000),
-						})
-					});
-				}
+				updateDriverStatus(this.state.driverUserId, 'true', 3, () => {
+					this.setState({
+						driverHasAccepted: true,
+						driverToCustomer: true,
+						isWaiting: false,
+						start: start,
+						dest: dest,
+						initialStart: initialStart,
+						initialDest: initialDest,
+						driverStatus: 3,
+						interval: setInterval(() => { this.walkThroughPath(this.state.pointIndex)}, 250),
+						updateDriverInterval: setInterval(() => { this.updateLocation(true)}, 1000),
+					})
+				});
 			} else if(request.accepted === -1) {
 				this.setState({
 					driverHasAccepted: false,
@@ -658,6 +649,15 @@ class Booking extends Component {
 							)
 						}
 					</Container>
+				)
+			}
+			{
+				this.state.notLoggedOn && (
+					<div style={SPACER}>
+						<h3>
+							You must be logged on to view this page.
+						</h3>
+					</div>
 				)
 			}
 			</div>

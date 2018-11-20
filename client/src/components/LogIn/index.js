@@ -59,19 +59,22 @@ class LogIn extends Component {
                 sessionStorage.setItem('driver', !this.state.isCustomer);
                 sessionStorage.setItem('customer', this.state.isCustomer);
                 sessionStorage.setItem('userId', response.data);
-
                 userId = sessionStorage.getItem('userId');
                 isDriver = sessionStorage.getItem('driver');
-                const geolocation = navigator.geolocation;
-                if (geolocation) {
-                    geolocation.getCurrentPosition((position) => {
-                        const latitude = position.coords.latitude;
-                        const longitude = position.coords.longitude;
-                        return addDriver(userId, isDriver, 1, latitude, longitude);
-                    });
+                if (this.state.isCustomer) {
+                    history.push('/homepage');
+                } else {
+                    const geolocation = navigator.geolocation;
+                    if (geolocation) {
+                        geolocation.getCurrentPosition((position) => {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+                            addDriver(userId, isDriver, 1, latitude, longitude, () => {
+                                history.push('/homepage');
+                            });
+                        });
+                    }
                 }
-				// push to home page on successful login
-				history.push('/homepage');
             } else {
 				this.setState({
 					loginError: true
