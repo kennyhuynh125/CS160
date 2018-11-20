@@ -109,34 +109,33 @@ class AddDriver(generics.ListCreateAPIView):
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     def post(self, request):
-        driver = Driver.objects.get(id=int(request.data['userId']));
-        if driver:
+        user_id = request.data['userId']
+        try:
+            driver = Driver.objects.get(userId=user_id)
             return Response(False)
-        data_serializer = DriverSerializer(data=request.data)
-
-        if data_serializer.is_valid():
-            data_serializer.save()
-            return Response(True)
-        else:
-            return Response(False)
-
-
+        except Driver.DoesNotExist:          
+            data_serializer = DriverSerializer(data=request.data)
+            if data_serializer.is_valid():
+                data_serializer.save()
+                return Response(True)
+            else:
+                return Response(False)
+            
 class UpdateDriverLocation(generics.ListCreateAPIView):
-    queryset = Driver.objects.all()
+    queryset = Driver.objects.all();
     serializer_class = DriverSerializer
     def post(self, request):
         user_id = request.data['userId']
         latitude = request.data['latitude']
         longitude = request.data['longitude']
-        driver = Driver.objects.get(userId=user_id)
-        driver.currentLatitude = latitude
-        driver.currentLongitude = longitude
-        driver.status = 0 if driver.status == None else driver.status
         try:
+            driver = Driver.objects.get(userId=user_id)          
+            driver.currentLatitude = latitude
+            driver.currentLongitude = longitude
             driver.save()
             return Response(True)
         except Exception as e:
-            print(e)
+            print(e);
             return Response(False)
 
 
