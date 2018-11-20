@@ -8,7 +8,7 @@ You can view the site on: https://letitfly160.herokuapp.com
 
 Usage Video: https://drive.google.com/file/d/1dsv_zyFQG7M7ykW4Kklrnhjy587zyG6r/view
 
-
+Installation Video: https://www.youtube.com/watch?v=XNBXwgmZeRI
 
   
 
