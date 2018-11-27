@@ -1,7 +1,5 @@
 # CS160 - LetItFly
 
-  
-
 CS160 Software Engineering Project
 
 You can view the site on: https://letitfly160.herokuapp.com
@@ -10,69 +8,39 @@ Usage Video: https://drive.google.com/file/d/1dsv_zyFQG7M7ykW4Kklrnhjy587zyG6r/v
 
 Installation Video: https://www.youtube.com/watch?v=XNBXwgmZeRI
 
-  
-
 # Getting Started
-
-  
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-  
-
-  
-
 ## Prerequisites
-
-  
 
 You will need the following software installed:
 
-  
-
 - Node/NPM [Link Here](https://nodejs.org/en/)
 
-  
-
-- Git [Link Here](https://git-scm.com/downloads)
-
-  
+* Git [Link Here](https://git-scm.com/downloads)
 
 - Python3 or higher [Link Here](https://www.python.org/downloads/)
 
-  
-
-- Pip [Link Here](https://pip.pypa.io/en/stable/installing/)
-
-  
+* Pip [Link Here](https://pip.pypa.io/en/stable/installing/)
 
 After installing all the software, we need to make sure all are correctly installed.
-
-  
 
 ### To test if Node/NPM is installed correctly
 
 Open a terminal/command prompt and type in the following
 
-  
-
     node -v
 
 This will test for Node and you should get something like this:
-
-  
 
     v6.11.2
 
 For NPM:
 
-  
-
     npm -v
 
 You should get something like this:
-
-  
 
     3.10.10
 
@@ -80,21 +48,15 @@ You should get something like this:
 
 Open a terminal/command prompt and type in the following:
 
-  
-
     git --version
 
 You should get something like this:
-
-  
 
     git version 2.14.1.windows.1
 
 ### To test if Python is installed correctly
 
 Open a terminal/command prompt and type in the following:
-
-  
 
     python
 
@@ -112,29 +74,19 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 This will open a Python process, all you need to do is type `exit()` on the terminal/command prompt.
 
-  
-
 ### To test if Pip is installed
 
 Open a terminal/command prompt and type in the following:
-
-  
 
     pip --version
 
 You should get something like this:
 
-  
-
     pip 9.0.1 from c:\users\andy\appdata\local\programs\python\python35\lib\site-packages (python 3.5)
 
-  
 Warning: Some of the project dependencies do not function with pip version 18.1! Use version pip 18.0 instead.
 
-
 Now all of our software are installed correctly!
-
-  
 
 ## Installing
 
@@ -145,7 +97,6 @@ First, you will need a clone of the repo. Open a terminal/command prompt and typ
 This will download the repo into your current directory. Change directory to the repo.
 
 Next, you will need to install all the dependencies for both the React side and Django side.
-  
 
 ## To install dependencies on React side
 
@@ -182,11 +133,6 @@ This will start up the server. After it is done starting up, go to `localhost:80
 Our database is hosted on Amazon RDS. We use environment variables to store our database credentials for security purposes.
 The environment variables that need to be set up are:
 
-`
-DB_HOST
-DB_NAME
-DB_PASSWORD
-DB_USER
-`
+`DB_HOST DB_NAME DB_PASSWORD DB_USER`
 
 To get the credentials for this, please contact one of our members.

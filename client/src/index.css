@@ -5,16 +5,16 @@ body {
 }
 
 a {
-    color: #17a2b8!important;
+  color: #17a2b8 !important;
 }
 
 a:hover {
-    color:#37c7dd!important;
-    text-decoration:none!important;
+  color: #37c7dd !important;
+  text-decoration: none !important;
 }
 
 ::selection {
-  color: #17a2b8!important;
+  color: #17a2b8 !important;
 }
 
 img {

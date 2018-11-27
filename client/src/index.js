@@ -12,8 +12,9 @@ Entry point for React to render our application.
 It renders the App component, which renders our entire application.
 */
 ReactDOM.render(
-    <Router history={history}>
-        <App />
-    </Router>, 
-    document.getElementById('root'));
+  <Router history={history}>
+    <App />
+  </Router>,
+  document.getElementById('root')
+);
 registerServiceWorker();
