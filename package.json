@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "cd client && npm install && npm run build"
+    "postinstall": "lerna bootstrap"
   },
   "repository": {
     "type": "git",
@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/kennyhuynh125/CS160/issues"
   },
-  "homepage": "https://github.com/kennyhuynh125/CS160#readme"
+  "homepage": "https://github.com/kennyhuynh125/CS160#readme",
+  "devDependencies": {
+    "lerna": "^3.4.3"
+  }
 }
