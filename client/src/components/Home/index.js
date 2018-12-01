@@ -10,11 +10,7 @@ import
 This component is the main page when the user goes on our site.
 */
 class Home extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-        }
-    }
+    state = {};
 
     // if user is logged in, redirect to homepage
     componentDidMount() {

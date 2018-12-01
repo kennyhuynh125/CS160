@@ -18,34 +18,31 @@ import {
 * This component is the home page when a user logs in as a driver.
 */
 class DriverHomePage extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isOpen: false,
-            dropDownText: 'Select Status',
-            selectedStatus: null,
-            hasUpdatedStatus: false,
-            hasUpdatedLocation: false,
-            driverId: '',
-            foundRider: false,
-            findCustomerInterval: null,
-            rideRequestInfo: {},
-            hasAccepted: null,
-            coordinates: [],
-            initialDestCoords: [0,0],
-            initialStartCoords: [0,0],
-            walkPathInterval: null,
-            coordinateIndex: 0,
-            rideComplete: false,
-            reachedCustomer: false,
-            driverLatitude: 0,
-            driverLongitude: 0,
-            startCoords: [0,0],
-            destCoords: [0,0],
-            currentStatus: 0,
-            allowedLocation: true,
-        }
-    }
+    state = {
+        isOpen: false,
+        dropDownText: 'Select Status',
+        selectedStatus: null,
+        hasUpdatedStatus: false,
+        hasUpdatedLocation: false,
+        driverId: '',
+        foundRider: false,
+        findCustomerInterval: null,
+        rideRequestInfo: {},
+        hasAccepted: null,
+        coordinates: [],
+        initialDestCoords: [0,0],
+        initialStartCoords: [0,0],
+        walkPathInterval: null,
+        coordinateIndex: 0,
+        rideComplete: false,
+        reachedCustomer: false,
+        driverLatitude: 0,
+        driverLongitude: 0,
+        startCoords: [0,0],
+        destCoords: [0,0],
+        currentStatus: 0,
+        allowedLocation: true,
+    };
 
     componentDidMount() {
         const userId = sessionStorage.getItem('userId');

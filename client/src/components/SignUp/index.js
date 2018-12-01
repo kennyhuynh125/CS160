@@ -10,14 +10,11 @@ This component renders the form for users to sign up for an account.
 Form contains field for username and password.
 */
 class SignUp extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            username: '',
-            password: '',
-			signUpError: false,
-        }	
-    }
+    state = {
+        username: '',
+        password: '',
+        signUpError: false,
+    };
 
     // changes the password state to what the user inpus
     handlePasswordChange = (e) => {

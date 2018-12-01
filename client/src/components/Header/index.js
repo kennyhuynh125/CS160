@@ -9,12 +9,9 @@ import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 This component renders the header on the top of the screen.
 */
 class Header extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            isOpen: false
-        };
-    }
+    state = {
+        isOpen: false
+    };
 
     toggle = () => {
         this.setState({

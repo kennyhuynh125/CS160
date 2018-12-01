@@ -7,13 +7,10 @@ and then book a ride
 */
 
 class AirportDropdown extends Component {
+	state = {
+		isOpen: false,
+	}
 	
-    constructor(props) {
-        super(props);
-        this.state = {
-			isOpen: false,
-        }
-    }
 	toggle = () => {
 		this.setState({
             isOpen: !this.state.isOpen,

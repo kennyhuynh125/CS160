@@ -14,15 +14,12 @@ This component renders the form for users to log in.
 Form contains field for username and password.
 */
 class LogIn extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            username: '',
-            password: '',
-            isCustomer: '',
-			loginError: false
-        }
-    }
+    state = {
+        username: '',
+        password: '',
+        isCustomer: '',
+        loginError: false
+    };
 
     // changes the password state to what the user inpus
     handlePasswordChange = (e) => {

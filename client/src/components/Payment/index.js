@@ -6,29 +6,26 @@ import CardInformation from '../CardInformation';
 import SavedAddresses from '../SavedAddresses';
 
 export default class Payment extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            collapseCard: false,
-            collapseAddr: false,
-            ccName: '',
-            ccCardType: '',
-            ccCardNum: '',
-            ccExpMonth: '',
-            ccExpYear: '',
-            ccCVV: '',
-            savedCards: [],
-            savedAddresses: [],
-            firstName: '',
-            lastName: '',
-            street: '',
-            aptNo: null,
-            city: '',
-            state: '',
-            country: '',
-            zip: '',
-        }
-    }
+    state = {
+        collapseCard: false,
+        collapseAddr: false,
+        ccName: '',
+        ccCardType: '',
+        ccCardNum: '',
+        ccExpMonth: '',
+        ccExpYear: '',
+        ccCVV: '',
+        savedCards: [],
+        savedAddresses: [],
+        firstName: '',
+        lastName: '',
+        street: '',
+        aptNo: null,
+        city: '',
+        state: '',
+        country: '',
+        zip: '',
+    };
 
     componentDidMount() {
         const userId = sessionStorage.getItem('userId');

@@ -4,18 +4,15 @@ import axios from 'axios';
 
 
 export default class Settings extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            firstName: '',
-            lastName: '',
-            email: '',
-            collapseCard: false,
-            currentFirstName: '',
-            currentLastName: '',
-            currentEmail: '',
-        }
-    }
+    state = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        collapseCard: false,
+        currentFirstName: '',
+        currentLastName: '',
+        currentEmail: '',
+    };
 
     componentDidMount() {
         const userId = sessionStorage.getItem('userId');

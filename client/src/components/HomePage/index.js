@@ -10,17 +10,14 @@ import BlockedPage from '../BlockedPage';
 This component is distinguished from Home in that this page displays the customer or driver homepage as necessary
 */
 class HomePage extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            latitude: 0,
-            longitude: 0,
-            location: [],
-            isCustomer: null,
-            isLoggedIn: false,
-            allowedLocation: true,
-        }
-    }
+    state = {
+        latitude: 0,
+        longitude: 0,
+        location: [],
+        isCustomer: null,
+        isLoggedIn: false,
+        allowedLocation: true,
+    };
 
     componentDidMount() {
         const isCustomer = sessionStorage.getItem('customer');

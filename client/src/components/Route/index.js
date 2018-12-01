@@ -5,18 +5,15 @@ import StandaloneSearchBox from '../Reusable/Searchbox'
 import MapWithADirectionsRenderer from '../Reusable/DirectionsRenderer'
 
 export default class Map extends React.PureComponent {
-    constructor(props) {
-        super();
-        this.state = {
-            latitude: 0,
-            longitude: 0,
-            location: [],
-            destLatitude: 0,
-            destLongitude: 0,
-            destLocation: [],
-            loading: true,
-        }
-    }
+    state = {
+        latitude: 0,
+        longitude: 0,
+        location: [],
+        destLatitude: 0,
+        destLongitude: 0,
+        destLocation: [],
+        loading: true,
+    };
 
     componentDidMount() {
         this.getGeoLocation()
