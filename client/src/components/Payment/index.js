@@ -59,6 +59,19 @@ export default class Payment extends Component {
 
     // adds card to database and refreshes page to show new change
     addCard = (e) => {
+        e.preventDefault();
+        if (this.state.ccCardNum.includes('e')) {
+            alert('Card number is invalid.');
+            return;
+        }
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        if (this.state.ccExpMonth < currentMonth || this.state.ccExpYear < currentYear) {
+            alert ('Card entered has expired. Please enter another card.');
+            return;
+        }
+        
         const userId = sessionStorage.getItem('userId');
         axios.post('/api/addcard', {
             userId: userId,
@@ -81,7 +94,6 @@ export default class Payment extends Component {
         .catch((error) => {
             console.log(error);
         })
-        e.preventDefault();
     }
 
     // changes ccName state to user input
@@ -216,7 +228,7 @@ export default class Payment extends Component {
 
                                         <FormGroup>
                                             <Label for="ccnum">Credit Card Number (15 - 19 digits)</Label>
-                                            <Input pattern=".{15,19}" type="password" name="ccnum" id="ccnum" onChange={this.handleCardNumChange} required />
+                                            <Input pattern=".{15,19}" type="number" name="ccnum" id="ccnum" onChange={this.handleCardNumChange} required />
                                         </FormGroup>
                                         <Row form><Col md={6}>
                                         <FormGroup>
@@ -246,13 +258,13 @@ export default class Payment extends Component {
                                         <FormGroup><Label for="expdate">Year</Label>
                                             <Input type="select" name="expyear" id="expyear" onChange={this.handleExpYearChange} required>
                                                 <option value="">None</option>
-                                                <option value="18">2018</option>
-                                                <option value="19">2019</option>
-                                                <option value="20">2020</option>
-                                                <option value="21">2021</option>
-                                                <option value="22">2022</option>
-                                                <option value="23">2023</option>
-                                                <option value="24">2024</option>
+                                                <option value="2018">2018</option>
+                                                <option value="2019">2019</option>
+                                                <option value="2020">2020</option>
+                                                <option value="2021">2021</option>
+                                                <option value="2022">2022</option>
+                                                <option value="2023">2023</option>
+                                                <option value="2024">2024</option>
                                             </Input>
                                         </FormGroup>
                                         </Col></Row>
