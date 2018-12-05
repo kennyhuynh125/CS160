@@ -46,7 +46,6 @@ class DriverHomePage extends Component {
             allowedLocation: true,
         }
     }
-
     componentDidMount() {
         const userId = sessionStorage.getItem('userId');
         axios.post('/api/getcurrentdriver', {
@@ -64,7 +63,7 @@ class DriverHomePage extends Component {
         })
         .catch((error) => {
             console.log(error);
-        });
+        });   
     }
 
     checkForNewCustomers = (userId) => {
