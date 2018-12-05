@@ -30,7 +30,6 @@ class Address(models.Model):
     country = models.CharField(max_length=200)
     zipCode = models.IntegerField(default=94544)
 
-
 class Driver(models.Model):
     userId = models.IntegerField(null=True)
     status = models.IntegerField(default=-1)
@@ -48,3 +47,7 @@ class RideRequests(models.Model):
     driverLatitude = models.FloatField(default=0, null=True)
     driverLongitude = models.FloatField(default=0, null=True)
     accepted = models.IntegerField(default=0)
+    
+class LogoutRequests(models.Model):
+    logoutUserId = models.IntegerField()
+    didLogout = models.IntegerField(null=True)

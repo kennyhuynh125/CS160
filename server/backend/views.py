@@ -3,19 +3,20 @@ from django.core import serializers
 from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import User, Payment, Driver, RideRequests, Address
-from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer, RideRequestsSerializer, AddressSerializer
+from .models import User, Payment, Driver, RideRequests, Address, LogoutRequests
+from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer, RideRequestsSerializer, AddressSerializer, LogoutSerializer
 from django.db.models import Q
 from django.conf import settings
 
 import googlemaps
 import math
 import os
-
+import time
 
 
 GOOGLE_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
@@ -62,7 +63,45 @@ class LogUser(generics.CreateAPIView):
                 return Response(user.id)
         return Response(None)
 
-
+class StartLogoutTimer(generics.ListCreateAPIView):
+    queryset = LogoutRequests.objects.all()
+    serializer_class = LogoutRequests
+    def post(self, request):
+        data = self.get_queryset();
+        print('start called')
+        print(request.data['logoutUserId'])
+        try:
+            logrequest = LogoutRequests.objects.get(logoutUserId=request.data['logoutUserId'])
+            if(logrequest):
+                logrequest.didLogout = logrequest.didLogout + 1
+                logrequest.save()
+        except LogoutRequests.DoesNotExist:          
+            request.data['didLogout']=1
+            data_serializer = LogoutSerializer(data=request.data)
+            if data_serializer.is_valid():
+                data_serializer.save()
+        time.sleep(30)
+            # This is where the server will clear the column of users to check they are not logged in
+        try:
+            logrequest = LogoutRequests.objects.get(logoutUserId=request.data['logoutUserId'])
+            print(logrequest)
+        except LogoutRequests.DoesNotExist:          
+            print('removed successfully')
+        return HttpResponse('')
+class ClearLogoutTimer(generics.ListCreateAPIView):
+    queryset = LogoutRequests.objects.all()
+    serializer_class = LogoutRequests
+    def post(self, request):
+        data = self.get_queryset();
+        print('remove called')
+        print(request.data['logoutUserId'])
+        try:
+            logrequest = LogoutRequests.objects.filter(logoutUserId=request.data['logoutUserId'])
+            logrequest.delete()
+            return Response(True)
+        except LogoutRequests.DoesNotExist:
+            return Response(False)
+        
 class ListCardsByUser(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer

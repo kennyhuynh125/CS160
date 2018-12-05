@@ -28,4 +28,6 @@ urlpatterns = [
     path('addaddress', views.AddNewAddress.as_view()),
     path('getaddresses/<int:userId>', views.ListAddressesByUser.as_view()),
     path('driverstatus', views.GetDriverStatus.as_view()),
+    path('startlogouttimer', views.StartLogoutTimer.as_view()),
+    path('clearlogouttimer', views.ClearLogoutTimer.as_view()),
 ]

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Payment, Driver, RideRequests, Address
+from .models import User, Payment, Driver, RideRequests, Address, LogoutRequests
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -80,3 +80,12 @@ class RideRequestsSerializer(serializers.ModelSerializer):
             'accepted',
         )
         model = RideRequests
+        
+class LogoutSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'id',
+            'logoutUserId',
+            'didLogout',
+        )
+        model = LogoutRequests
