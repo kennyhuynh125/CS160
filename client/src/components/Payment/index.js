@@ -5,6 +5,10 @@ import axios from 'axios';
 import CardInformation from '../CardInformation';
 import SavedAddresses from '../SavedAddresses';
 
+import {
+    isCreditCardValid
+} from '../../helper';
+
 export default class Payment extends Component {
     constructor(props) {
         super(props);
@@ -71,6 +75,13 @@ export default class Payment extends Component {
             alert ('Card entered has expired. Please enter another card.');
             return;
         }
+
+        let results = isCreditCardValid(this.state.ccCardNum, this.state.ccCardType);
+
+        if (results !== "") {
+            alert(results);
+            return;
+        }
         
         const userId = sessionStorage.getItem('userId');
         axios.post('/api/addcard', {
@@ -113,7 +124,7 @@ export default class Payment extends Component {
 
     // changes ccCardCode state to user input and parses to integer
     handleCardCodeChange = (e) => {
-        this.setState({ ccCVV: parseInt(e.target.value, 10) });
+        this.setState({ ccCVV: e.target.value });
     }
 
     // changes ccExpMonth state to user input and parses to integer
@@ -228,12 +239,12 @@ export default class Payment extends Component {
 
                                         <FormGroup>
                                             <Label for="ccnum">Credit Card Number (15 - 19 digits)</Label>
-                                            <Input pattern=".{15,19}" type="number" name="ccnum" id="ccnum" onChange={this.handleCardNumChange} required />
+                                            <Input pattern="[0-9]{15,19}" title="number must be 15-19 digits long" type="text" name="ccnum" id="ccnum" onChange={this.handleCardNumChange} required />
                                         </FormGroup>
                                         <Row form><Col md={6}>
                                         <FormGroup>
                                             <Label for="cccvv">Credit Card CVV</Label>
-                                            <Input type="number" name="cccvv" id="cccvv" onChange={this.handleCardCodeChange} required />
+                                            <Input pattern="[0-9]{3,4}" title="CVV must be 3 or 4 digits"  type="text" name="cccvv" id="cccvv" onChange={this.handleCardCodeChange} required />
                                         </FormGroup>
                                         </Col><Col md={3}>
                                         <FormGroup>
@@ -273,7 +284,7 @@ export default class Payment extends Component {
                                     </CardBody>
                                 </Card>
                             </Collapse><hr/>
-                            <h5>Billing Address</h5>
+                            <h5>Billing Address (OPTIONAL)</h5>
                             <SavedAddresses addresses={this.state.savedAddresses} />
                             <p/><Button onClick={this.toggleAddr} style={{ marginBottom: '1rem' }} color="info">Add New Address</Button>
                                 <Collapse isOpen={this.state.collapseAddr}>

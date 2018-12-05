@@ -123,3 +123,54 @@ export const updateRequest = (driverUserId, accepted, callback) => {
         console.log(error);
     });
 }
+
+export const isCreditCardValid = (ccNumber, ccType) => {
+    let results = "";
+    switch(ccType) {
+        case "visa":
+            if (ccNumber.substring(0,1) !== '4') {
+                results += "Visa cards must start with a 4.";
+            }
+            break;
+        case "mastercard":
+            let number = parseInt(ccNumber.substring(0,2), 10);
+            if (number < 50 || number > 55) {
+                results += "First two digits of mastercards must be between 50-55";
+            }
+            break;
+        case "amex":
+            if (ccNumber.substring(0,2) !== '34' || ccNumber.substring(0,2) !== '37') {
+                results += "American Express first two digits must be 34 or 37.";
+            }
+            break;
+        case "discover":
+            //Discover Card	6011, 622126-622925, 644-649, 65
+            let typeOne = parseInt(ccNumber.substring(0,7), 10);
+            let typeTwo = parseInt(ccNumber.substring(0,4), 10);
+            let typeThree = parseInt(ccNumber.substring(0,1), 10);
+            let typeFour = parseInt(ccNumber.substring(0,4), 10);
+            let isValid = false;
+            if (typeOne >= 62216 && typeOne <= 62295) {
+                isValid = true;
+            }
+
+            if (typeTwo >= 644 && typeTwo <= 649) {
+                isValid = true;
+            }
+
+            if (typeThree === 65) {
+                isValid = true;
+            }
+
+            if (typeFour === 6011) {
+                isValid = true;
+            }
+            if (isValid === false) {
+                results += "Discover cards must start with 6011, 65, or be between 62216-622925 or 644-649";
+            }
+            break;
+        default:
+            results += "";
+    }
+    return results;
+}
