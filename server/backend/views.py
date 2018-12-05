@@ -81,13 +81,18 @@ class StartLogoutTimer(generics.ListCreateAPIView):
             if data_serializer.is_valid():
                 data_serializer.save()
         time.sleep(30)
-            # This is where the server will clear the column of users to check they are not logged in
+            # The backend checks to see if the the db still contains the id of the user to logout after 30 seconds
+            # If the user has not loaded a page, which calls ClearLogoutTimer if they are logged in
+            # The remaining code needs to be modified, as the user table now needs to be updated with a column for
+            # loginstatus, so that we prevent duplicate logins, and also remove drivers from activity if they are no longer
+            # logged in.
         try:
             logrequest = LogoutRequests.objects.get(logoutUserId=request.data['logoutUserId'])
             print(logrequest)
         except LogoutRequests.DoesNotExist:          
             print('removed successfully')
         return HttpResponse('')
+# Clears the logout table of a user. This is called if we should NOT log out a user
 class ClearLogoutTimer(generics.ListCreateAPIView):
     queryset = LogoutRequests.objects.all()
     serializer_class = LogoutRequests
