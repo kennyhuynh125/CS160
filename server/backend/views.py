@@ -77,7 +77,7 @@ class StartLogoutTimer(generics.ListCreateAPIView):
             data_serializer = LogoutSerializer(data=request.data)
             if data_serializer.is_valid():
                 data_serializer.save()
-        time.sleep(7)
+        time.sleep(30)
             # The backend checks to see if the the db still contains the id of the user to logout after 30 seconds
             # If the user has not loaded a page, which calls ClearLogoutTimer if they are logged in
             # The remaining code needs to be modified, as the user table now needs to be updated with a column for
