@@ -32,7 +32,6 @@ class Header extends Component {
         window.location.reload();
         history.push('/');
     }
-
     render() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn');
         return (

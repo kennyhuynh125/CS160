@@ -3,19 +3,20 @@ from django.core import serializers
 from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from .models import User, Payment, Driver, RideRequests, Address
-from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer, RideRequestsSerializer, AddressSerializer
+from .models import User, Payment, Driver, RideRequests, Address, LogoutRequests
+from .serializer import UserSerializer, UserCreateSerializer, PaymentSerializer, DriverSerializer, RideRequestsSerializer, AddressSerializer, LogoutSerializer
 from django.db.models import Q
 from django.conf import settings
 
 import googlemaps
 import math
 import os
-
+import time
 
 
 GOOGLE_API_KEY = os.environ.get('GOOGLE_MAPS_API_KEY')
@@ -62,7 +63,58 @@ class LogUser(generics.CreateAPIView):
                 return Response(user.id)
         return Response(None)
 
-
+class StartLogoutTimer(generics.ListCreateAPIView):
+    queryset = LogoutRequests.objects.all()
+    serializer_class = LogoutRequests
+    def post(self, request):
+        data = self.get_queryset();
+        try:
+            logrequest = LogoutRequests.objects.get(logoutUserId=request.data['logoutUserId'])
+            if(logrequest):
+                logrequest.save()
+        except LogoutRequests.DoesNotExist:          
+            request.data['didLogout']=0
+            data_serializer = LogoutSerializer(data=request.data)
+            if data_serializer.is_valid():
+                data_serializer.save()
+        time.sleep(30)
+            # The backend checks to see if the the db still contains the id of the user to logout after 30 seconds
+            # If the user has not loaded a page, which calls ClearLogoutTimer if they are logged in
+            # The remaining code needs to be modified, as the user table now needs to be updated with a column for
+            # loginstatus, so that we prevent duplicate logins, and also remove drivers from activity if they are no longer
+            # logged in.
+        try:
+            logrequest = LogoutRequests.objects.get(logoutUserId=request.data['logoutUserId'])
+            # Set loginstatus column in user table to 0
+            logrequest.didLogout = 1
+            logrequest.save()
+            # Update Driver Status
+            try:
+                driver = Driver.objects.get(userId=request.data['logoutUserId'])
+                driver.status = 0
+                driver.save()
+                print('Driver status updated sucessfully')
+            except Driver.DoesNotExist:
+                print('Not a driver')
+        except LogoutRequests.DoesNotExist:          
+            print('removed successfully')
+        return HttpResponse('')
+# Clears the logout table of a user. This is called if we should NOT log out a user
+class ClearLogoutTimer(generics.ListCreateAPIView):
+    queryset = LogoutRequests.objects.all()
+    serializer_class = LogoutRequests
+    def post(self, request):
+        data = self.get_queryset();
+        print('remove called')
+        print(request.data['logoutUserId'])
+        try:
+            logrequest = LogoutRequests.objects.filter(logoutUserId=request.data['logoutUserId'])
+            value = logrequest.didLogout
+            logrequest.delete()
+            return Response(value)
+        except LogoutRequests.DoesNotExist:
+            return Response(False)
+        
 class ListCardsByUser(generics.ListCreateAPIView):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
