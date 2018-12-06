@@ -1,0 +1,30 @@
+{
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "extends": ["airbnb", "prettier", "prettier/react", "prettier/flowtype"],
+  "parser": "babel-eslint",
+  "rules": {
+    "import/dynamic-import-chunkname": "error",
+    "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+    "no-unused-vars": "warn",
+    "react/destructuring-assignment": ["warn", "always"],
+    "react/jsx-filename-extension": ["error", {"extensions": [".js", ".jsx"]}],
+    "react/prefer-stateless-function": "warn",
+    "react/sort-comp": [
+      "error",
+      {
+        "order": [
+          "type-annotations",
+          "state",
+          "static-methods",
+          "constructor",
+          "lifecycle",
+          "everything-else",
+          "render"
+        ]
+      }
+    ]
+  }
+}

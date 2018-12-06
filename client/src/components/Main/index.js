@@ -17,20 +17,20 @@ There is a route for each path and each route renders a component.
 For example if the user goes to localhost:3000/ it would render the Home component.
 */
 class Main extends Component {
-    render() {
-        return (
-            <Container>
-                <Route exact path="/" component={Home} />
-                <Route exact path="/login" component={LogIn} />
-                <Route exact path="/signup" component={SignUp} />
-                <Route exact path="/settings" component={Settings} />
-                <Route exact path="/payment" component={Payment} />
-                <Route exact path="/route" component={RouteMap} />
-				<Route exact path="/booking" component={Booking} />
-                <Route exact path="/homepage" component={HomePage} />
-            </Container>
-        )
-    }
+  render() {
+    return (
+      <Container>
+        <Route exact path="/" component={Home} />
+        <Route exact path="/login" component={LogIn} />
+        <Route exact path="/signup" component={SignUp} />
+        <Route exact path="/settings" component={Settings} />
+        <Route exact path="/payment" component={Payment} />
+        <Route exact path="/route" component={RouteMap} />
+        <Route exact path="/booking" component={Booking} />
+        <Route exact path="/homepage" component={HomePage} />
+      </Container>
+    );
+  }
 }
 
 export default Main;

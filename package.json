@@ -1,21 +1,66 @@
 {
   "name": "CS160",
-  "version": "1.0.0",
   "description": "CS160 Software Engineering Project",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "cd client && npm install && npm run build"
-  },
+  "license": "ISC",
+  "author": "",
+  "homepage": "https://github.com/kennyhuynh125/CS160#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kennyhuynh125/CS160.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/kennyhuynh125/CS160/issues"
   },
-  "homepage": "https://github.com/kennyhuynh125/CS160#readme"
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "cd client && npm install && npm run build",
+    "lint": "eslint . --ext js,jsx",
+    "lint-fix": "yarn run lint --fix || :",
+    "postlint-fix": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json,md,css,scss}\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "husky": "^1.2.0",
+    "lint-staged": "^8.1.0",
+    "prettier": "^1.15.2",
+    "prettier-package-json": "^2.0.1"
+  },
+  "keywords": [],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "linters": {
+      "*.{js,jsx}": [
+        "eslint --fix",
+        "prettier --ignore-path .eslintignore --write",
+        "git add"
+      ],
+      "{*.json,.{babelrc,eslintrc,prettierrc,stylelintrc}}": [
+        "prettier --ignore-path .eslintignore --write",
+        "git add"
+      ],
+      "*.{yml,less,md,css,scss}": [
+        "prettier --ignore-path .eslintignore --write",
+        "git add"
+      ],
+      "**/package.json": [
+        "prettier-package-json --write",
+        "git add"
+      ]
+    },
+    "globOptions": {
+      "dot": true
+    }
+  }
 }
