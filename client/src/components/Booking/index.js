@@ -24,46 +24,48 @@ This component is the booking page, users can select or input locations
 and then book a ride
 */
 class Booking extends Component {
-	state = {
-		start: [0,0],
-		dest: [0,0],
-		refresh: false,
-		locationError: false,
-		dropdDown1: false,
-		dropDown1Text: "Select Airport",
-		dropDown2: false,
-		dropDown2Text: "Select Airport",
-		toAirport: false,
-		fromAirport: false,
-		currentLatitude: 0,
-		currentLongitude: 0,
-		nearestDriver: -1,
-		distance: -1,
-		duration: -1,
-		driverUserId: null,
-		driverLatitude: 0,
-		driverLongitude: 0,
-		driverId: null,
-		isWaiting: false,
-		requestId: 0,
-		driverHasAccepted: null,
-		points: [],
-		fare: 0,
-		pointIndex: 0,
-		driverToCustomer: false,
-		initialStart: [],
-		initialDest: [],
-		updateDriverInterval: null,
-		isFixedDriver: false,
-		rideFinished: false,
-		allowedLocation: true,
-		savedCards: [],
-		doneLoading: false,
-		isRerouted: false,
-		driverStatus: 0,
-		statusInterval: null,
-		notLoggedOn: false,
-	};
+  state = {
+            start: [0,0],
+            dest: [0,0],
+			refresh: false,
+			locationError: false,
+			dropdDown1: false,
+			dropDown1Text: "Select Airport",
+			dropDown2: false,
+			dropDown2Text: "Select Airport",
+			toAirport: false,
+			fromAirport: false,
+			currentLatitude: 0,
+			currentLongitude: 0,
+			nearestDriver: -1,
+			distance: -1,
+			duration: -1,
+			driverUserId: null,
+			driverLatitude: 0,
+			driverLongitude: 0,
+			driverId: null,
+			isWaiting: false,
+			requestId: 0,
+			driverHasAccepted: null,
+			points: [],
+			fare: 0,
+			pointIndex: 0,
+			driverToCustomer: false,
+			initialStart: [],
+			initialDest: [],
+			updateDriverInterval: null,
+			isFixedDriver: false,
+			rideFinished: false,
+			allowedLocation: true,
+			savedCards: [],
+			doneLoading: false,
+			isRerouted: false,
+			driverStatus: 0,
+			statusInterval: null,
+			notLoggedOn: false,
+			selectedDestination: false,
+			selectedStart: false,
+        };
 	
 	// when component mounts, get the user's current location
 	componentDidMount() {
@@ -169,6 +171,7 @@ class Booking extends Component {
     this.setState({
 		dropDown1Text: chosenAirport,
 		start: coordinates,
+		selectedStart: true,
 		}, () => {
 			this.getDistanceAndDuration();
 			this.getDriver();
@@ -189,6 +192,7 @@ class Booking extends Component {
     this.setState({
 		dropDown2Text: chosenAirport,
 		dest: coordinates,
+		selectedDestination: true,
 		}, () => {
 			this.getDistanceAndDuration();
 			this.getDriver();
@@ -201,6 +205,8 @@ class Booking extends Component {
 			dest: [0,0],
 			toAirport: true,
 			fromAirport: false,
+			selectedDestination: false,
+			selectedStart: false,
 		});
 	}
 
@@ -210,6 +216,8 @@ class Booking extends Component {
 			dest: [0,0],
 			toAirport: false,
 			fromAirport: true,
+			selectedStart: false,
+			selectedDestination: false,
 		});
 	}
 
@@ -357,6 +365,8 @@ class Booking extends Component {
 					driverHasAccepted: false,
 					driverToCustomer: false,
 					isWaiting: false,
+					selectedStart: false,
+					selectedDestination: false,
 				}, () => {
 					clearInterval(this.state.interval);
 					clearInterval(this.state.updateDriverInterval);
@@ -518,7 +528,7 @@ class Booking extends Component {
 															labelText={this.state.dropDown2Text}
 															label1={'SFO'}
 															label2={'OAK'}
-															label3={'SJO'}
+															label3={'SJC'}
 															loc1={SFO}
 															loc2={OAK}
 															loc3={SJO}
@@ -592,9 +602,14 @@ class Booking extends Component {
 																			<p>Driver declined. Please try again.</p>
 																		)
 																	}
-																	<Form>
-																		<center><hr/><Button onClick={this.requestRide} color="info">Request a Ride</Button></center>
-																	</Form>
+																	{
+																		(this.state.selectedStart || this.state.selectedDestination) &&
+																		(this.state.nearestDriver >= 0 && this.state.nearestDriver <= 30) && (
+																			<Form>
+																				<center><hr/><Button onClick={this.requestRide} color="info">Request a Ride</Button></center>
+																			</Form>
+																		)
+																	}
 																	<div style={SPACER} />
 																</div>
 															)

@@ -149,6 +149,7 @@ export default class Settings extends Component {
                 isLoggedIn && (
                 <div>
                     <br/><h2>Account Settings</h2>
+                    <p>NOTE: The information is optional and all does not need to be filled</p>
                     <br/><Table bordered>
                         <thead>
                             <tr>
