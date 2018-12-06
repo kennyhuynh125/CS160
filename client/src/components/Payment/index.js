@@ -17,6 +17,8 @@ import axios from 'axios';
 import CardInformation from '../CardInformation';
 import SavedAddresses from '../SavedAddresses';
 
+import { isCreditCardValid } from '../../helper';
+
 export default class Payment extends Component {
   constructor(props) {
     super(props);
@@ -73,6 +75,32 @@ export default class Payment extends Component {
 
   // adds card to database and refreshes page to show new change
   addCard = e => {
+    e.preventDefault();
+    if (this.state.ccCardNum.includes('e')) {
+      alert('Card number is invalid.');
+      return;
+    }
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    if (
+      this.state.ccExpMonth < currentMonth ||
+      this.state.ccExpYear < currentYear
+    ) {
+      alert('Card entered has expired. Please enter another card.');
+      return;
+    }
+
+    const results = isCreditCardValid(
+      this.state.ccCardNum,
+      this.state.ccCardType
+    );
+
+    if (results !== '') {
+      alert(results);
+      return;
+    }
+
     const userId = sessionStorage.getItem('userId');
     axios
       .post('/api/addcard', {
@@ -96,7 +124,6 @@ export default class Payment extends Component {
       .catch(error => {
         console.log(error);
       });
-    e.preventDefault();
   };
 
   // changes ccName state to user input
@@ -116,7 +143,7 @@ export default class Payment extends Component {
 
   // changes ccCardCode state to user input and parses to integer
   handleCardCodeChange = e => {
-    this.setState({ ccCVV: parseInt(e.target.value, 10) });
+    this.setState({ ccCVV: e.target.value });
   };
 
   // changes ccExpMonth state to user input and parses to integer
@@ -256,8 +283,9 @@ export default class Payment extends Component {
                         Credit Card Number (15 - 19 digits)
                       </Label>
                       <Input
-                        pattern=".{15,19}"
-                        type="password"
+                        pattern="[0-9]{15,19}"
+                        title="number must be 15-19 digits long"
+                        type="text"
                         name="ccnum"
                         id="ccnum"
                         onChange={this.handleCardNumChange}
@@ -269,7 +297,9 @@ export default class Payment extends Component {
                         <FormGroup>
                           <Label for="cccvv">Credit Card CVV</Label>
                           <Input
-                            type="number"
+                            pattern="[0-9]{3,4}"
+                            title="CVV must be 3 or 4 digits"
+                            type="text"
                             name="cccvv"
                             id="cccvv"
                             onChange={this.handleCardCodeChange}
@@ -314,13 +344,13 @@ export default class Payment extends Component {
                             required
                           >
                             <option value="">None</option>
-                            <option value="18">2018</option>
-                            <option value="19">2019</option>
-                            <option value="20">2020</option>
-                            <option value="21">2021</option>
-                            <option value="22">2022</option>
-                            <option value="23">2023</option>
-                            <option value="24">2024</option>
+                            <option value="2018">2018</option>
+                            <option value="2019">2019</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
                           </Input>
                         </FormGroup>
                       </Col>
@@ -331,7 +361,7 @@ export default class Payment extends Component {
               </Card>
             </Collapse>
             <hr />
-            <h5>Billing Address</h5>
+            <h5>Billing Address (OPTIONAL)</h5>
             <SavedAddresses addresses={this.state.savedAddresses} />
             <p />
             <Button
