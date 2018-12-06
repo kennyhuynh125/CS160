@@ -46,6 +46,13 @@ class DriverHomePage extends Component {
             allowedLocation: true,
         }
     }
+    leavePageAttempt = (ev) =>
+    {
+        if(this.state.currentStatus !== 0)
+        {
+            ev.preventDefault();
+        }     
+    }
     componentDidMount() {
         const userId = sessionStorage.getItem('userId');
         axios.post('/api/getcurrentdriver', {
@@ -63,7 +70,8 @@ class DriverHomePage extends Component {
         })
         .catch((error) => {
             console.log(error);
-        });   
+        });
+        window.addEventListener("beforeunload", this.leavePageAttempt);
     }
 
     checkForNewCustomers = (userId) => {

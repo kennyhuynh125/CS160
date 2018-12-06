@@ -36,15 +36,18 @@ class Main extends Component {
     */
     // When users move or close pages, this is called
     closingCode = () => {
-        const userId = sessionStorage.getItem('userId');
-        const data = {
-            logoutUserId: userId
-        };
-        let headers = {
-            type: 'application/json'
-        };
-        const blob = new Blob([JSON.stringify(data)], headers);
-        navigator.sendBeacon('/api/startlogouttimer', blob);
+        if(sessionStorage.getItem('isLoggedIn'))
+        {
+            const userId = sessionStorage.getItem('userId');
+            const data = {
+                logoutUserId: userId
+            };
+            let headers = {
+                type: 'application/json'
+            };
+            const blob = new Blob([JSON.stringify(data)], headers);
+            navigator.sendBeacon('/api/startlogouttimer', blob);
+        }
     }
     // Whenever users load a page, signal the backend not to logout the user
     // Also add the listener to check page close/refresh
@@ -54,6 +57,12 @@ class Main extends Component {
             const userId = sessionStorage.getItem('userId');
             axios.post('/api/clearlogouttimer', {
                 logoutUserId: userId
+            }).then((response) => {
+                if(response == 1)
+                {
+                    sessionStorage.setItem('isLoggedIn', false);
+                    sessionStorage.setItem('userId', null);
+                }
             })
             .catch((error) => {
                 console.log(error);
