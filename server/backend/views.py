@@ -68,19 +68,16 @@ class StartLogoutTimer(generics.ListCreateAPIView):
     serializer_class = LogoutRequests
     def post(self, request):
         data = self.get_queryset();
-        print('start called')
-        print(request.data['logoutUserId'])
         try:
             logrequest = LogoutRequests.objects.get(logoutUserId=request.data['logoutUserId'])
             if(logrequest):
-                logrequest.didLogout = logrequest.didLogout + 1
                 logrequest.save()
         except LogoutRequests.DoesNotExist:          
-            request.data['didLogout']=1
+            request.data['didLogout']=0
             data_serializer = LogoutSerializer(data=request.data)
             if data_serializer.is_valid():
                 data_serializer.save()
-        time.sleep(30)
+        time.sleep(7)
             # The backend checks to see if the the db still contains the id of the user to logout after 30 seconds
             # If the user has not loaded a page, which calls ClearLogoutTimer if they are logged in
             # The remaining code needs to be modified, as the user table now needs to be updated with a column for
@@ -88,7 +85,17 @@ class StartLogoutTimer(generics.ListCreateAPIView):
             # logged in.
         try:
             logrequest = LogoutRequests.objects.get(logoutUserId=request.data['logoutUserId'])
-            print(logrequest)
+            # Set loginstatus column in user table to 0
+            logrequest.didLogout = 1
+            logrequest.save()
+            # Update Driver Status
+            try:
+                driver = Driver.objects.get(userId=request.data['logoutUserId'])
+                driver.status = 0
+                driver.save()
+                print('Driver status updated sucessfully')
+            except Driver.DoesNotExist:
+                print('Not a driver')
         except LogoutRequests.DoesNotExist:          
             print('removed successfully')
         return HttpResponse('')
@@ -102,8 +109,9 @@ class ClearLogoutTimer(generics.ListCreateAPIView):
         print(request.data['logoutUserId'])
         try:
             logrequest = LogoutRequests.objects.filter(logoutUserId=request.data['logoutUserId'])
+            value = logrequest.didLogout
             logrequest.delete()
-            return Response(True)
+            return Response(value)
         except LogoutRequests.DoesNotExist:
             return Response(False)
         
